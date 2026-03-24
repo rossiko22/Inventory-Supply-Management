@@ -1,4 +1,4 @@
-name: Warehouse Service CI
+name: Inventory Microservices CI
 
 on:
   push:
@@ -8,30 +8,69 @@ on:
   pull_request:
 
 jobs:
-  build-test-docker:
+  build-warehouse-microservice:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
 
-      - name: Build Warehouse Service
+      - name: Build and test warehouse service
         working-directory: services/warehouse-service
         run: mvn clean package -DskipTests=false
 
-      - name: Run Unit Tests
-        working-directory: services/warehouse-service
-        run: mvn test
-
-      - name: Build Docker Image
+      - name: Build Docker image
         working-directory: services/warehouse-service
         run: docker build -t warehouse-service:latest .
 
-      - name: List Docker Images
-        run: docker images
+  build-inventory-microservice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build and test inventory service
+        working-directory: services/inventory-service
+        run: mvn clean package -DskipTests=false
+
+      - name: Build Docker image
+        working-directory: services/inventory-service
+        run: docker build -t inventory-service:latest .
+
+  build-order-microservice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        working-directory: services/order-service
+        run: dotnet restore
+
+      - name: Build order service
+        working-directory: services/order-service
+        run: dotnet build --no-restore -c Release
+
+      - name: Run unit tests
+        working-directory: services/order-service
+        run: dotnet test order-service.Tests/order-service.Tests.csproj --no-build -c Release
+
+      - name: Build Docker image
+        working-directory: services/order-service
+        run: docker build -t order-service:latest .

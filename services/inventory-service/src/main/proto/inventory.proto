@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_package = "com.marko.logistics.inventory.grpc";
+option java_multiple_files = true;
+option java_outer_classname = "InventoryProto";  // add this
+
+service InventoryService {   // renamed from InventoryGrpc → avoids collision
+  rpc UpdateInventory (InventoryRequest) returns (InventoryResponse);
+}
+
+message InventoryRequest {
+  string productId = 1;
+  string warehouseId = 2;
+  int32 quantity = 3;
+}
+
+message InventoryResponse {
+  bool success = 1;
+  string message = 2;
+}

@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5437/inventory
+    username: administrator
+    password: D31#12Sdea@#123SdZZsdup@3!
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+server:
+  port: 8086
+grpc:
+  server:
+    port: 9090

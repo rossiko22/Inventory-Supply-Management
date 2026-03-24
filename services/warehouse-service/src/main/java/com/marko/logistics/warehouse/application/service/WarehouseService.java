@@ -42,13 +42,7 @@ public class WarehouseService implements
         var saved = repository.save(warehouse);
         log.info("Warehouse created with ID: {}", saved.getId());
 
-        return new WarehouseResponse(
-                saved.getId(),
-                saved.getName(),
-                saved.getCountry(),
-                saved.getCity(),
-                saved.getCapacity()
-        );
+        return WarehouseMapper.toResponse(saved);
     }
 
     @Override
@@ -82,20 +76,14 @@ public class WarehouseService implements
     @Override
     public WarehouseResponse getWarehouseById(UUID id){
         log.info("Fetching warehouse by ID: {}", id);
-        var w = repository.findById(id)
+        var warehouse = repository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Warehouse not found for ID: {}", id);
                     return new WarehouseNotFoundException(id);
                 });
-        log.info("Warehouse found: {}", w.getName());
+        log.info("Warehouse found: {}", warehouse.getName());
 
-        return new WarehouseResponse(
-                w.getId(),
-                w.getName(),
-                w.getCountry(),
-                w.getCity(),
-                w.getCapacity()
-        );
+        return WarehouseMapper.toResponse(warehouse);
     }
 
     @Override

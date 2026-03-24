@@ -1,6 +1,5 @@
 package com.marko.logistics.warehouse.application.port.out;
 
-import com.marko.logistics.warehouse.application.dto.UpdateWarehouseRequest;
 import com.marko.logistics.warehouse.domain.model.Warehouse;
 
 import java.util.List;
