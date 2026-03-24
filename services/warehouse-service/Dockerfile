@@ -24,11 +24,10 @@ FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
 # Copy the jar from the build stage
-COPY --from=build /app/target/inventory-service-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/warehouse-service-0.0.1-SNAPSHOT.jar app.jar
 
-# Expose both REST and gRPC ports
-EXPOSE 8086
-EXPOSE 9090
+# Expose port
+EXPOSE 8084
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
