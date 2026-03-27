@@ -7,6 +7,7 @@ public record UpdateWarehouseRequest(
         String name,
         Country country,
         City city,
-        Integer capacity
+        Integer totalCapacity,
+        Integer usedCapacity
 ) {
 }

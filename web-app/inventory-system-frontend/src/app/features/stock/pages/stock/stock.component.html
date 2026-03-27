@@ -1,0 +1,103 @@
+<p-toast />
+
+<ng-template #headerActions>
+  <button
+    (click)="exportCsv()"
+    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+    </svg>
+    Export CSV
+  </button>
+</ng-template>
+
+<app-page-header title="Stock" description="Inventory across all warehouses" [actions]="headerActions" />
+
+<!-- Filters -->
+<div class="flex flex-wrap items-center gap-3 mb-4">
+  <div class="relative flex-1 min-w-[200px] max-w-xs">
+    <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+    </svg>
+    <input
+      pInputText
+      [ngModel]="searchQuery()"
+      (ngModelChange)="searchQuery.set($event)"
+      placeholder="Search products..."
+      class="w-full pl-9"
+    />
+  </div>
+
+  <p-select
+    [ngModel]="selectedWarehouse()"
+    (ngModelChange)="selectedWarehouse.set($event)"
+    [options]="warehouseOptions()"
+    optionLabel="label"
+    optionValue="value"
+    styleClass="w-52"
+  />
+</div>
+
+@if (isLoading()) {
+  <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+    @for (i of [1,2,3,4,5]; track i) {
+      <div class="flex items-center gap-4 px-4 py-3 border-b border-gray-100 dark:border-gray-800 last:border-0 animate-pulse">
+        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/6"></div>
+        <div class="h-3 bg-gray-100 dark:bg-gray-800 rounded w-1/4"></div>
+        <div class="h-3 bg-gray-100 dark:bg-gray-800 rounded w-1/5"></div>
+        <div class="h-3 bg-gray-100 dark:bg-gray-800 rounded w-1/6"></div>
+      </div>
+    }
+  </div>
+} @else if (filtered().length === 0) {
+  <div class="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-600">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+    </svg>
+    <p class="text-sm font-medium">No stock entries found</p>
+    <p class="text-xs mt-1">Stock is added automatically when orders are closed.</p>
+  </div>
+} @else {
+  <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">SKU</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Product</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Warehouse</th>
+            <th class="text-right py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Quantity</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filtered(); track item.id) {
+            <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+              <td class="py-3 px-4 font-mono text-xs text-gray-500 dark:text-gray-400">
+                {{ productSku(item.productId) }}
+              </td>
+              <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">
+                {{ productName(item.productId) }}
+              </td>
+              <td class="py-3 px-4 text-gray-500 dark:text-gray-400">
+                {{ warehouseName(item.warehouseId) }}
+              </td>
+              <td class="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">
+                {{ item.quantity.toLocaleString() }}
+              </td>
+              <td class="py-3 px-4">
+                @if (item.quantity > 0) {
+                  <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400">In Stock</span>
+                } @else {
+                  <span class="text-xs font-medium text-red-600 dark:text-red-400">Out of Stock</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

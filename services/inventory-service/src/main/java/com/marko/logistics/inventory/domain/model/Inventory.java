@@ -1,6 +1,6 @@
 package com.marko.logistics.inventory.domain.model;
 
-
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Inventory {
@@ -10,11 +10,14 @@ public class Inventory {
     private final String productId;
     private int quantity;
 
-    public Inventory(String id, String productId, String warehouseId, int quantity){
+
+    public Inventory(String id, String productId, String warehouseId,
+                     int quantity) {
         this.id = id;
         this.productId = productId;
         this.quantity = quantity;
         this.warehouseId = warehouseId;
+
     }
 
     public String getId() { return id; }

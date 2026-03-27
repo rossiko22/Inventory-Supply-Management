@@ -27,16 +27,21 @@ public class WarehouseJpaEntity {
     private City city;
 
     @Column(nullable = false)
-    private Integer capacity;
+    private Integer totalCapacity;
+
+
+    @Column(nullable = false)
+    private Integer usedCapacity; // currently used
 
     protected WarehouseJpaEntity() {}
 
-    public WarehouseJpaEntity(UUID id, String name, Country country, City city, Integer capacity){
+    public WarehouseJpaEntity(UUID id, String name, Country country, City city, Integer totalCapacity, Integer usedCapacity){
         this.id = id;
         this.name = name;
         this.country = country;
         this.city = city;
-        this.capacity = capacity;
+        this.totalCapacity = totalCapacity;
+        this.usedCapacity = usedCapacity;
     }
 
     public UUID getId() {
@@ -55,9 +60,10 @@ public class WarehouseJpaEntity {
         return city;
     }
 
-    public Integer getCapacity() {
-        return capacity;
+    public Integer getTotalCapacity() {
+        return totalCapacity;
     }
+    public Integer getUsedCapacity() { return usedCapacity; }
 
     public void setId(UUID id) {
         this.id = id;
@@ -75,7 +81,8 @@ public class WarehouseJpaEntity {
         this.city = city;
     }
 
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
+    public void setTotalCapacity(Integer totalCapacity) {
+        this.totalCapacity = totalCapacity;
     }
+    public void setUsedCapacity(Integer usedCapacity) { this.usedCapacity = usedCapacity; }
 }

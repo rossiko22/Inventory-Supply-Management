@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --p-primary-50:  #eef2ff;
+  --p-primary-100: #e0e7ff;
+  --p-primary-200: #c7d2fe;
+  --p-primary-300: #a5b4fc;
+  --p-primary-400: #818cf8;
+  --p-primary-500: #6366f1;  /* base */
+  --p-primary-600: #4f46e5;  /* indigo-600 — buttons, focus rings */
+  --p-primary-700: #4338ca;
+  --p-primary-800: #3730a3;
+  --p-primary-900: #312e81;
+  --p-primary-950: #1e1b4b;
+}
+
+/* Chrome autofill fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}

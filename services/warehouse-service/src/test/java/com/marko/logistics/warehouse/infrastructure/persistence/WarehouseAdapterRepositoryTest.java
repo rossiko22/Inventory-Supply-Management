@@ -37,7 +37,7 @@ public class WarehouseAdapterRepositoryTest {
         assertEquals("Test Warehouse", found.get().getName());
         assertEquals(City.KUMANOVO, found.get().getCity());
         assertEquals(Country.MACEDONIA, found.get().getCountry());
-        assertEquals(100, found.get().getCapacity());
+        assertEquals(100, found.get().getTotalCapacity());
     }
 
     @Test

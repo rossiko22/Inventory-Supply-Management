@@ -11,4 +11,7 @@ public class OrderResponse
     public Guid DriverId { get; set; }
     public int Quantity { get; set; }
     public Status Status { get; set; }
+    public DateTime? DeliveryDate { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime LastModified { get; set; }
 }

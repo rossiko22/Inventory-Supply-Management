@@ -1,13 +1,16 @@
 package com.marko.logistics.warehouse.application.service;
 
 import com.marko.logistics.warehouse.application.dto.CreateWarehouseRequest;
+import com.marko.logistics.warehouse.application.dto.TotalWarehousesResponse;
 import com.marko.logistics.warehouse.application.dto.UpdateWarehouseRequest;
 import com.marko.logistics.warehouse.application.dto.WarehouseResponse;
 import com.marko.logistics.warehouse.application.mapper.WarehouseMapper;
 import com.marko.logistics.warehouse.application.port.in.*;
 import com.marko.logistics.warehouse.application.port.out.WarehouseRepositoryPort;
+import com.marko.logistics.warehouse.domain.exception.WarehouseFullException;
 import com.marko.logistics.warehouse.domain.exception.WarehouseNotFoundException;
 import com.marko.logistics.warehouse.domain.model.Warehouse;
+import com.marko.logistics.warehouse.infrastructure.messaging.InventoryKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,10 +27,60 @@ public class WarehouseService implements
         DeleteWarehouseUseCase,
         GetAllWarehousesUseCase,
         GetWarehouseUseCase,
-        UpdateWarehouseUseCase
+        UpdateWarehouseUseCase,
+        GetTotalNumberOfWarehouses,
+        UpdateWarehouseCapacityUseCase
 {
 
     private final WarehouseRepositoryPort repository;
+    private final InventoryKafkaProducer _kafkaProducer;
+
+    @Override
+    public void increaseUsedCapacity(UUID warehouseId, int quantity){
+        log.info("Increasing usedCapacity for warehouseId={} by {}", warehouseId, quantity);
+
+        var warehouse = repository.findById(warehouseId)
+                .orElseThrow(() -> {
+                    log.warn("Warehouse not found for capacity update, id={}", warehouseId);
+                    return new WarehouseNotFoundException(warehouseId);
+                });
+
+        int newUsed = warehouse.getUsedCapacity() + quantity;
+
+        if(newUsed > warehouse.getTotalCapacity()){
+            log.warn("Capacity overflow for warehouseId={}: used={}, total={}",
+                    warehouseId, newUsed, warehouse.getTotalCapacity());
+            throw new WarehouseFullException(warehouseId, warehouse.getTotalCapacity(), newUsed);
+        }
+
+        warehouse.update(
+                warehouse.getName(),
+                warehouse.getCountry(),
+                warehouse.getCity(),
+                warehouse.getTotalCapacity(),
+                newUsed
+        );
+
+        repository.save(warehouse);
+        log.info("usedCapacity updated to {} for warehouseId={}", newUsed, warehouseId);
+
+        int capacityLeft = warehouse.getTotalCapacity() - newUsed;
+
+        if (capacityLeft == 0) {
+            log.info("Warehouse {} is completely full — sending inventory.out", warehouseId);
+            _kafkaProducer.sendOutInventoryEvent(warehouseId.toString());
+        } else if (capacityLeft <= 500) {
+            log.info("Warehouse {} is low ({} left) — sending inventory.low", warehouseId, capacityLeft);
+            _kafkaProducer.sendLowInventoryEvent(warehouseId.toString(), capacityLeft);
+        }
+    }
+
+    @Override
+    public TotalWarehousesResponse countAllWarehouses() {
+        log.info("Counting warehouses...");
+        var totalWarehouses = repository.findAll();
+        return new TotalWarehousesResponse(totalWarehouses.size());
+    }
 
     @Override
     public WarehouseResponse createWarehouse(CreateWarehouseRequest request){
@@ -36,7 +89,7 @@ public class WarehouseService implements
                 request.name(),
                 request.country(),
                 request.city(),
-                request.capacity()
+                request.totalCapacity()
         );
 
         var saved = repository.save(warehouse);
@@ -54,7 +107,7 @@ public class WarehouseService implements
                     return new WarehouseNotFoundException(id);
                 });
 
-        warehouse.update(request.name(), request.country(), request.city(), request.capacity());
+        warehouse.update(request.name(), request.country(), request.city(), request.totalCapacity(), request.usedCapacity());
         var updated = repository.save(warehouse);
         log.info("Warehouse ID {} updated successfully", id);
 

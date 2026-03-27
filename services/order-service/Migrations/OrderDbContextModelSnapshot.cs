@@ -31,8 +31,17 @@ namespace order_service.Migrations
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeliveryDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("DriverId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");

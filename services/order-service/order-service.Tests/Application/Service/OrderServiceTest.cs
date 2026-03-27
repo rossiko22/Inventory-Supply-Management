@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using order_service.Application.DTOs;
 using order_service.Application.Interfaces;
+using order_service.Application.Services;
 using order_service.Domain;
 using order_service.Domain.Enums;
 using Xunit;
@@ -14,13 +15,15 @@ public class OrderServiceTest
     private readonly Mock<IInventoryGrpcClient> _grpcClientMock;
     private readonly order_service.Application.Services.OrderService _service;
     private readonly Mock<ILogger<order_service.Application.Services.OrderService>> _loggerMock;
+    private readonly DocumentStorageService _storageService;
+    private readonly IKafkaProducer _kafkaProducer;
  
     public OrderServiceTest()
     {
         _repositoryMock = new Mock<IOrderRepository>();
         _grpcClientMock = new Mock<IInventoryGrpcClient>();
         _loggerMock = new Mock<ILogger<order_service.Application.Services.OrderService>>();
-        _service = new order_service.Application.Services.OrderService(_repositoryMock.Object, _grpcClientMock.Object, _loggerMock.Object);
+        _service = new order_service.Application.Services.OrderService(_repositoryMock.Object, _grpcClientMock.Object, _loggerMock.Object,  _storageService, _kafkaProducer);
     }
  
     [Fact]

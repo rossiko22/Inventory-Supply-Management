@@ -11,17 +11,23 @@ public class OrderService : IOrderService
     private readonly IOrderRepository _repository;
     private readonly IInventoryGrpcClient _inventoryClient;
     private readonly ILogger<OrderService> _logger;
+    private readonly IDocumentStorageService _documentStorageService;
+    private readonly IKafkaProducer _kafkaProducer;
 
     public OrderService(
         IOrderRepository repository,
         IInventoryGrpcClient inventoryClient,
-        ILogger<OrderService> logger)
+        ILogger<OrderService> logger,
+        IDocumentStorageService documentStorageService,
+        IKafkaProducer kafkaProducer)
     {
         _repository = repository;
         _inventoryClient = inventoryClient;
         _logger = logger;
+        _documentStorageService = documentStorageService;
+        _kafkaProducer =  kafkaProducer;
     }
-
+    
     public async Task<OrderResponse> UpdateStatusAsync(Guid orderId, Status status)
     {
         _logger.LogInformation("Updating status for orderId={OrderId} to {Status}", orderId, status);
@@ -48,7 +54,22 @@ public class OrderService : IOrderService
 
             _logger.LogInformation("Inventory gRPC call completed for order {OrderId}", orderId);
         }
+        
+        var oldStatus = order.Status.ToString();        // ← capture before update
+        order.UpdateStatus(status);
+        await _repository.UpdateAsync(order);
 
+        _logger.LogInformation("Order {OrderId} status updated to {Status}", orderId, status);
+        
+        // ── Publish to Kafka ──────────────────────────────────────────────
+        await _kafkaProducer.PublishOrderStatusChangedAsync(new OrderStatusChangedEvent
+        {
+            OrderId   = order.Id.ToString(),
+            OldStatus = oldStatus,
+            NewStatus = status.ToString(),
+            ChangedAt = DateTime.UtcNow.ToString("o"),
+        });
+        
         return new OrderResponse
         {
             Id = order.Id,
@@ -57,7 +78,9 @@ public class OrderService : IOrderService
             WarehouseId = order.WarehouseId,
             DriverId = order.DriverId,
             Quantity = order.Quantity,
-            Status = order.Status
+            Status = order.Status,
+            CreatedAt = order.CreatedAt,
+            LastModified = order.LastModified
         };
     }
 
@@ -71,13 +94,25 @@ public class OrderService : IOrderService
             request.CompanyId,
             request.WarehouseId,
             request.DriverId,
-            request.Quantity
+            request.Quantity,
+            request.DeliveryDate
         );
 
         var saved = await _repository.SaveAsync(order);
 
         _logger.LogInformation("Order created successfully: orderId={OrderId}", saved.Id);
 
+        // ── Publish to Kafka ──────────────────────────────────────────────
+        await _kafkaProducer.PublishOrderCreatedAsync(new OrderCreatedEvent
+        {
+            OrderId     = saved.Id.ToString(),
+            CompanyId   = saved.CompanyId.ToString(),
+            CompanyName = saved.CompanyId.ToString(), // swap for real name if you have it
+            WarehouseId = saved.WarehouseId.ToString(),
+            Status      = saved.Status.ToString(),
+            CreatedAt   = saved.CreatedAt.ToString("o"),
+        });
+        
         return new OrderResponse
         {
             Id = saved.Id,
@@ -86,7 +121,10 @@ public class OrderService : IOrderService
             WarehouseId = saved.WarehouseId,
             DriverId = saved.DriverId,
             Quantity = saved.Quantity,
-            Status = saved.Status
+            Status = saved.Status,
+            DeliveryDate = saved.DeliveryDate,
+            CreatedAt = saved.CreatedAt,
+            LastModified = saved.LastModified
         };
     }
 
@@ -104,7 +142,10 @@ public class OrderService : IOrderService
             WarehouseId = o.WarehouseId,
             DriverId = o.DriverId,
             Quantity = o.Quantity,
-            Status = o.Status
+            Status = o.Status,
+            DeliveryDate = o.DeliveryDate,
+            CreatedAt = o.CreatedAt,
+            LastModified = o.LastModified
         }).ToList();
     }
 }

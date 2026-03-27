@@ -137,6 +137,10 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Confluent.Kafka": {
+              "target": "Package",
+              "version": "[2.13.2, )"
+            },
             "Google.Protobuf": {
               "target": "Package",
               "version": "[3.34.0, )"

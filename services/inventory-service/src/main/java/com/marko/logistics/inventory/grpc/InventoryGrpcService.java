@@ -2,6 +2,7 @@ package com.marko.logistics.inventory.grpc;
 
 import com.marko.logistics.inventory.application.dto.CreateInventoryRequest;
 import com.marko.logistics.inventory.application.port.in.AddStockUseCase;
+import com.marko.logistics.inventory.infrastructure.messaging.InventoryKafkaProducer;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 
@@ -13,9 +14,11 @@ import com.marko.logistics.inventory.grpc.InventoryResponse;
 public class InventoryGrpcService extends InventoryServiceGrpc.InventoryServiceImplBase {
 
     private final AddStockUseCase addStockUseCase;
+    private final InventoryKafkaProducer kafkaProducer;
 
-    public InventoryGrpcService(AddStockUseCase addStockUseCase) {
+    public InventoryGrpcService(AddStockUseCase addStockUseCase, InventoryKafkaProducer kafkaProducer) {
         this.addStockUseCase = addStockUseCase;
+        this.kafkaProducer = kafkaProducer;
     }
 
     @Override
@@ -28,6 +31,11 @@ public class InventoryGrpcService extends InventoryServiceGrpc.InventoryServiceI
                     request.getProductId(),
                     request.getQuantity()
             );
+
+            String warehouseId = request.getWarehouseId();
+            int quantity = request.getQuantity();
+
+            kafkaProducer.sendStockUpdatedEvent(warehouseId, quantity);
 
             addStockUseCase.addStock(stock);
 

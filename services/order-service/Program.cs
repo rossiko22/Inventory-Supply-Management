@@ -3,6 +3,7 @@ using order_service.Application.Interfaces;
 using order_service.Infrastructure.Grpc;
 using order_service.Infrastructure.Persistence;
 using order_service.Application.Services;
+using order_service.Infrastructure.Kafka;
 
 namespace order_service;
 
@@ -28,9 +29,14 @@ public class Program
         // Controllers
         builder.Services.AddControllers();
 
+        // Kafka
+        builder.Services.AddSingleton<IKafkaProducer, KafkaProducer>();
+        
         // Dependency Injection
         builder.Services.AddScoped<IOrderService, Application.Services.OrderService>();
         builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+        
+        builder.Services.AddScoped<IDocumentStorageService, DocumentStorageService>();
 
         builder.Services.AddScoped<IInventoryGrpcClient, InventoryGrpcClient>();
         // Database

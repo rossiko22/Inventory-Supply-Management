@@ -11,31 +11,36 @@ public class Warehouse {
     private String name;
     private Country country;
     private City city;
-    private Integer capacity;
+    private Integer totalCapacity;
+    private Integer usedCapacity;
 
-    public Warehouse(UUID id, String name, Country country, City city, Integer capacity) {
+    public Warehouse(UUID id, String name, Country country, City city, Integer totalCapacity, Integer usedCapacity) {
         this.id = id;
         this.name = name;
         this.country = country;
         this.city = city;
-        this.capacity = capacity;
+        this.totalCapacity = totalCapacity;
+        this.usedCapacity = usedCapacity;
     }
 
-    public static Warehouse create(String name, Country country, City city, Integer capacity) {
+
+    public static Warehouse create(String name, Country country, City city, Integer totalCapacity) {
         return new Warehouse(
                 UUID.randomUUID(),
                 name,
                 country,
                 city,
-                capacity
+                totalCapacity,
+                0
         );
     }
 
-    public void update(String name, Country country, City city, Integer capacity) {
+    public void update(String name, Country country, City city, Integer totalCapacity, Integer usedCapacity) {
         this.name = name;
         this.country = country;
         this.city = city;
-        this.capacity = capacity;
+        this.totalCapacity = totalCapacity;
+        this.usedCapacity = usedCapacity;
     }
 
     public UUID getId() {
@@ -54,7 +59,11 @@ public class Warehouse {
         return city;
     }
 
-    public Integer getCapacity() {
-        return capacity;
+    public Integer getTotalCapacity() {
+        return totalCapacity;
+    }
+
+    public Integer getUsedCapacity() {
+        return usedCapacity;
     }
 }

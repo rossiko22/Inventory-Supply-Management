@@ -1,6 +1,7 @@
 package com.marko.logistics.warehouse.presentation.controller;
 
 import com.marko.logistics.warehouse.application.dto.CreateWarehouseRequest;
+import com.marko.logistics.warehouse.application.dto.TotalWarehousesResponse;
 import com.marko.logistics.warehouse.application.dto.UpdateWarehouseRequest;
 import com.marko.logistics.warehouse.application.dto.WarehouseResponse;
 import com.marko.logistics.warehouse.application.service.WarehouseService;
@@ -49,6 +50,12 @@ public class WarehouseController {
         var response = warehouseService.getWarehouseById(id);
         log.info("Fetched warehouse {}: {}", id, response.name());
         return response;
+    }
+
+    @GetMapping("/total")
+    public TotalWarehousesResponse countAllWarehouses() {
+        log.info("Fetching number of warehouses");
+        return warehouseService.countAllWarehouses();
     }
 
     @DeleteMapping("/{id}")

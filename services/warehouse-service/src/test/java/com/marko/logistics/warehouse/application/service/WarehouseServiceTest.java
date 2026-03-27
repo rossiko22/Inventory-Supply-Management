@@ -8,6 +8,8 @@
     import com.marko.logistics.warehouse.domain.enums.Country;
     import com.marko.logistics.warehouse.domain.exception.WarehouseNotFoundException;
     import com.marko.logistics.warehouse.domain.model.Warehouse;
+    import com.marko.logistics.warehouse.infrastructure.messaging.InventoryKafkaProducer;
+    import org.apache.kafka.clients.producer.KafkaProducer;
     import org.junit.jupiter.api.BeforeEach;
     import org.junit.jupiter.api.Test;
 
@@ -23,11 +25,12 @@
     public class WarehouseServiceTest {
         private WarehouseRepositoryPort repository;
         private WarehouseService service;
+        private InventoryKafkaProducer kafkaProducer;
 
         @BeforeEach
         void setUp() {
             repository = mock(WarehouseRepositoryPort.class);
-            service = new WarehouseService(repository);
+            service = new WarehouseService(repository, kafkaProducer);
         }
 
         @Test
@@ -38,7 +41,7 @@
             WarehouseResponse response = service.createWarehouse(request);
 
             assertEquals("W1", response.name());
-            assertEquals(100, response.capacity());
+            assertEquals(100, response.totalCapacity());
             verify(repository, times(1)).save(any());
         }
 
@@ -46,7 +49,7 @@
         void updateWarehouse_updatesWarehouse() {
             UUID id = UUID.randomUUID();
             Warehouse warehouse = Warehouse.create("Old", Country.SLOVENIA, City.MARIBOR, 50);
-            UpdateWarehouseRequest request = new UpdateWarehouseRequest("New", Country.SLOVENIA, City.MARIBOR, 150);
+            UpdateWarehouseRequest request = new UpdateWarehouseRequest("New", Country.SLOVENIA, City.MARIBOR, 150, 0);
 
             when(repository.findById(id)).thenReturn(Optional.of(warehouse));
             when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -54,14 +57,14 @@
             WarehouseResponse response = service.updateWarehouse(id, request);
 
             assertEquals("New", response.name());
-            assertEquals(150, response.capacity());
+            assertEquals(150, response.totalCapacity());
             verify(repository, times(1)).save(warehouse);
         }
 
         @Test
         void updateWarehouse_throwsExceptionIfNotFound() {
             UUID id = UUID.randomUUID();
-            UpdateWarehouseRequest request = new UpdateWarehouseRequest("New", Country.SLOVENIA, City.MARIBOR, 150);
+            UpdateWarehouseRequest request = new UpdateWarehouseRequest("New", Country.SLOVENIA, City.MARIBOR, 150, 0);
 
             when(repository.findById(id)).thenReturn(Optional.empty());
 

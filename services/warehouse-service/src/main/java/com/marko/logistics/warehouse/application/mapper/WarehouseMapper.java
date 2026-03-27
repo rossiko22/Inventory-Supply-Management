@@ -12,7 +12,8 @@ public class WarehouseMapper {
                 warehouse.getName(),
                 warehouse.getCountry(),
                 warehouse.getCity(),
-                warehouse.getCapacity()
+                warehouse.getTotalCapacity(),
+                warehouse.getUsedCapacity()
         );
     }
 
@@ -22,7 +23,8 @@ public class WarehouseMapper {
                 entity.getName(),
                 entity.getCountry(),
                 entity.getCity(),
-                entity.getCapacity()
+                entity.getTotalCapacity(),
+                entity.getUsedCapacity()
         );
     }
 
@@ -32,7 +34,8 @@ public class WarehouseMapper {
                 warehouse.getName(),
                 warehouse.getCountry(),
                 warehouse.getCity(),
-                warehouse.getCapacity()
+                warehouse.getTotalCapacity(),
+                warehouse.getUsedCapacity()
         );
     }
 }

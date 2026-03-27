@@ -30,7 +30,7 @@ public class WarehouseControllerTest {
 
     @Test
     void getAll_shouldReturnList() throws Exception {
-        WarehouseResponse w = new WarehouseResponse(UUID.randomUUID(), "W1", null, null, 100);
+        WarehouseResponse w = new WarehouseResponse(UUID.randomUUID(), "W1", null, null, 100, 0);
         when(warehouseService.getAllWarehouses()).thenReturn(List.of(w));
 
         mockMvc.perform(get("/warehouses"))
@@ -41,7 +41,7 @@ public class WarehouseControllerTest {
     @Test
     void create_shouldReturnWarehouse() throws Exception {
         CreateWarehouseRequest request = new CreateWarehouseRequest("New", null, null, 50);
-        WarehouseResponse response = new WarehouseResponse(UUID.randomUUID(), "New", null, null, 50);
+        WarehouseResponse response = new WarehouseResponse(UUID.randomUUID(), "New", null, null, 50, 0);
 
         when(warehouseService.createWarehouse(request)).thenReturn(response);
 
@@ -54,9 +54,9 @@ public class WarehouseControllerTest {
 
     @Test
     void update_shouldReturnWarehouse() throws Exception {
-        UpdateWarehouseRequest request = new UpdateWarehouseRequest("Updated", null, null, 60);
+        UpdateWarehouseRequest request = new UpdateWarehouseRequest("Updated", null, null, 60, 0);
         UUID id = UUID.randomUUID();
-        WarehouseResponse response = new WarehouseResponse(id, "Updated", null, null, 60);
+        WarehouseResponse response = new WarehouseResponse(id, "Updated", null, null, 60, 0);
 
         when(warehouseService.updateWarehouse(id, request)).thenReturn(response);
 

@@ -1,0 +1,184 @@
+<p-toast />
+
+<ng-template #headerActions>
+  <!-- Both workers and managers can create orders -->
+  <p-button label="New Order" size="small" (onClick)="openNew()">
+    <ng-template pTemplate="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+    </ng-template>
+  </p-button>
+</ng-template>
+
+<app-page-header title="Purchase Orders" description="Create and manage purchase orders" [actions]="headerActions" />
+
+<!-- Role info banner -->
+@if (isWorker()) {
+  <div class="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-2.5 mb-4 text-sm text-blue-700 dark:text-blue-400">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    You can create stock requests. A manager will review and approve them.
+  </div>
+}
+
+@if (isLoading()) {
+  <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+    @for (i of [1,2,3,4]; track i) {
+      <div class="flex items-center gap-4 px-4 py-3 border-b border-gray-100 dark:border-gray-800 last:border-0 animate-pulse">
+        <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/6"></div>
+        <div class="h-3 bg-gray-100 dark:bg-gray-800 rounded w-1/5"></div>
+        <div class="h-3 bg-gray-100 dark:bg-gray-800 rounded w-1/5"></div>
+        <div class="h-3 bg-gray-100 dark:bg-gray-800 rounded w-1/6"></div>
+      </div>
+    }
+  </div>
+} @else if (orders().length === 0) {
+  <div class="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-600">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+    </svg>
+    <p class="text-sm font-medium">No orders yet</p>
+    <p class="text-xs mt-1">Click "New Order" to request stock.</p>
+  </div>
+} @else {
+  <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Product</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Warehouse</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Company</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Qty</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Delivery Date</th>
+            <th class="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+            @if (isManager()) {
+              <th class="text-right py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders(); track order.id) {
+            <tr class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+              <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ productName(order.productId) }}</td>
+              <td class="py-3 px-4 text-gray-500 dark:text-gray-400">{{ warehouseName(order.warehouseId) }}</td>
+              <td class="py-3 px-4 text-gray-500 dark:text-gray-400">{{ companyName(order.companyId) }}</td>
+              <td class="py-3 px-4 text-gray-500 dark:text-gray-400">{{ order.quantity }}</td>
+              <td class="py-3 px-4 text-gray-500 dark:text-gray-400"> {{ order.deliveryDate ? (order.deliveryDate | date:'mediumDate') : '—' }} </td>
+              <td class="py-3 px-4"><app-status-badge [status]="order.status" /></td>
+
+              @if (isManager()) {
+                <td class="py-3 px-4 text-right">
+                  @if (nextStatus(order) === 'Closed' && !attachedDocument()) {
+                    <!-- Require attachment before closing -->
+                    <button (click)="currentOrder.set(order); showAttachDialog.set(true)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 dark:hover:bg-indigo-900/30 dark:hover:text-indigo-400 transition-colors">
+                      Attach Document
+                    </button>
+                  } @else if (canAdvance(order)) {
+                    <button (click)="currentOrder.set(order); advanceStatus(order)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-600 dark:hover:bg-indigo-900/30 dark:hover:text-indigo-400 transition-colors">
+                      @switch (nextStatus(order)) {
+                        @case ('Approved') { Approve }
+                        @case ('Delivered') { Mark Delivered }
+                        @case ('Closed') { Close Order }
+                      }
+                    </button>
+                  } @else {
+                    <span class="text-xs text-gray-400 dark:text-gray-600">—</span>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
+
+<!-- Create Order Dialog — available to both roles -->
+<p-dialog header="New Stock Request" [visible]="dialogVisible()" (visibleChange)="dialogVisible.set($event)"
+  [modal]="true" [style]="{ width: '30rem' }" [draggable]="false" [resizable]="false">
+  <form [formGroup]="form" class="space-y-4 pt-1">
+    <div class="space-y-1.5">
+      <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Product</label>
+      <p-select formControlName="productId" [options]="productOptions()" optionLabel="label"
+        optionValue="value" placeholder="Select product" styleClass="w-full"/>
+      @if (form.get('productId')?.invalid && form.get('productId')?.touched) {
+        <p class="text-xs text-red-500">Product is required.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Warehouse</label>
+      <p-select formControlName="warehouseId" [options]="warehouseOptions()" optionLabel="label"
+        optionValue="value" placeholder="Select warehouse" styleClass="w-full"/>
+      @if (form.get('warehouseId')?.invalid && form.get('warehouseId')?.touched) {
+        <p class="text-xs text-red-500">Warehouse is required.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Company</label>
+      <p-select formControlName="companyId" [options]="companyOptions()" optionLabel="label"
+        optionValue="value" placeholder="Select company" styleClass="w-full"/>
+      @if (form.get('companyId')?.invalid && form.get('companyId')?.touched) {
+        <p class="text-xs text-red-500">Company is required.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Driver</label>
+      <p-select formControlName="driverId" [options]="driverOptions()" optionLabel="label"
+        optionValue="value" placeholder="Select driver" styleClass="w-full"/>
+      @if (form.get('driverId')?.invalid && form.get('driverId')?.touched) {
+        <p class="text-xs text-red-500">Driver is required.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Quantity</label>
+      <p-inputnumber formControlName="quantity" [min]="1" [useGrouping]="false" styleClass="w-full"/>
+      @if (form.get('quantity')?.invalid && form.get('quantity')?.touched) {
+        <p class="text-xs text-red-500">Quantity must be at least 1.</p>
+      }
+    </div>
+
+    <div class="space-y-1.5">
+  <label class="text-xs font-medium text-gray-700 dark:text-gray-300">
+    Delivery Date
+  </label>
+  <p-datepicker
+    formControlName="deliveryDate"
+    [minDate]="today"
+    [showButtonBar]="true"
+    [showIcon]="true"
+    [showOnFocus]="false"
+    view="date"
+    dateFormat="dd/mm/yy"
+    placeholder="Select delivery date"
+    styleClass="w-full" />
+</div>
+
+    <p-button label="Submit Request" styleClass="w-full mt-2"
+      [loading]="isSaving()" [disabled]="isSaving()" (onClick)="onSave()"/>
+  </form>
+</p-dialog>
+
+<!-- Attach Document Dialog — required for closing orders -->
+<p-dialog header="Attach Document" 
+          [visible]="showAttachDialog()" 
+          (visibleChange)="showAttachDialog.set($event)" 
+          [modal]="true" 
+          [style]="{width:'25rem'}">
+  <div class="space-y-4">
+    <input type="file" (change)="attachedDocument.set($any($event.target).files[0])" />
+    <p-button label="Upload & Close" 
+              [disabled]="!attachedDocument()" 
+              (onClick)="advanceStatus(currentOrder())" />
+  </div>
+</p-dialog>

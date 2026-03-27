@@ -1,0 +1,90 @@
+############################################
+# GENERAL
+############################################
+.DS_Store
+Thumbs.db
+*.log
+logs/
+*.tmp
+*.swp
+*.swo
+
+############################################
+# ENV / SECRETS
+############################################
+.env
+.env.*
+*.env
+application-*.yml
+application-*.yaml
+application-*.properties
+
+############################################
+# JAVA / SPRING BOOT
+############################################
+target/
+*.jar
+*.war
+*.ear
+*.class
+*.log
+
+# IntelliJ
+.idea/
+*.iml
+
+############################################
+# NODE / ANGULAR
+############################################
+node_modules/
+dist/
+.angular/
+coverage/
+*.log
+
+############################################
+# .NET
+############################################
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+############################################
+# DOCKER
+############################################
+*.pid
+*.seed
+*.pid.lock
+
+############################################
+# PROJECT SPECIFIC
+############################################
+
+# Logs inside services
+services/**/logs/
+services/**/*.log
+
+# Inventory logs
+services/inventory-service/*.log
+
+# Warehouse logs
+services/warehouse-service/*.log
+
+# Order service logs
+services/order-service/*.log
+
+# Angular build
+web-app/**/dist/
+web-app/**/node_modules/
+
+# VS Code
+.vscode/
+
+############################################
+# TEST OUTPUT
+############################################
+coverage/
+test-output/

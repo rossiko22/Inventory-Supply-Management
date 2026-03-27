@@ -1,0 +1,1 @@
+ng g c shared/components/notification-bell/notification-bell --standalone --type=componentng g interface core/models/notification --type=model

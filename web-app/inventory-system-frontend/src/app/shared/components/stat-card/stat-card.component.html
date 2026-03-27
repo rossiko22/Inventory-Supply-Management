@@ -1,0 +1,12 @@
+<div class="rounded-xl border bg-white dark:bg-gray-900 p-5 transition-colors" [class]="cardClass()">
+    <div class="flex items-center justify-between mb-3">
+        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ title() }}</span>
+    <div class="w-9 h-9 rounded-lg flex items-center justify-center" [class]="iconClass()">
+        <ng-container *ngTemplateOutlet="iconTemplate() ?? null" />
+    </div>
+    </div>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ value() }}</p>
+        @if (trend()) {
+            <p class="text-xs text-gray-400 mt-1">{{ trend() }}</p>
+        }
+</div>

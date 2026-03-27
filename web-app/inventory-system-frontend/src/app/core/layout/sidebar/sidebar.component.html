@@ -1,0 +1,140 @@
+<aside
+  class="flex flex-col h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 transition-all duration-300 ease-in-out shadow-sm"
+  [class.w-60]="!collapsed()"
+  [class.w-16]="collapsed()">
+
+  <!-- Logo -->
+  <div class="flex items-center gap-2.5 px-4 py-5 border-b border-gray-100 dark:border-gray-800">
+    <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shrink-0 shadow-md shadow-indigo-200 dark:shadow-none">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+      </svg>
+    </div>
+
+    @if (!collapsed()) {
+      <span class="text-sm font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+        InventoryPro
+      </span>
+    }
+
+    <button
+      (click)="collapsed.update(v => !v)"
+      class="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+      [pTooltip]="collapsed() ? 'Expand' : 'Collapse'"
+      tooltipPosition="right">
+      <svg xmlns="http://www.w3.org/2000/svg"
+           class="h-4 w-4 transition-transform duration-300"
+           [class.rotate-180]="collapsed()"
+           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Nav -->
+  <nav class="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+    @for (item of navItems; track item.route) {
+
+      <!-- ✅ FIX: Added opening <a> -->
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors group"
+        [pTooltip]="collapsed() ? item.label : ''"
+        tooltipPosition="right">
+
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="w-[18px] h-[18px] shrink-0"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.75"
+                [attr.d]="item.icon"/>
+        </svg>
+
+        @if (!collapsed()) {
+          <span class="text-sm font-medium whitespace-nowrap">
+            {{ item.label }}
+          </span>
+        }
+
+      </a>
+    }
+  </nav>
+
+  <!-- Dark mode -->
+  <div class="px-2 pb-2 pt-2 space-y-0.5 border-t border-gray-100 dark:border-gray-800">
+
+    <!-- Theme Toggle -->
+    <button
+      (click)="themeService.toggle()"
+      class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+      [pTooltip]="collapsed() ? (themeService.isDark() ? 'Light mode' : 'Dark mode') : ''"
+      tooltipPosition="right">
+
+      @if (themeService.isDark()) {
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3"/>
+        </svg>
+      } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+            d="M20.354 15.354A9 9 0 018.646 3.646"/>
+        </svg>
+      }
+
+      @if (!collapsed()) {
+        <span class="text-sm font-medium">
+          {{ themeService.isDark() ? 'Light mode' : 'Dark mode' }}
+        </span>
+      }
+
+    </button>
+
+  </div>
+
+  <!-- User profile -->
+  <div class="border-t border-gray-100 dark:border-gray-800 p-3">
+    <div class="flex items-center gap-3 px-2 py-2 rounded-lg">
+
+      <p-avatar
+        label="JM"
+        styleClass="!w-8 !h-8 !text-xs font-semibold shrink-0"
+        [style]="{ 'background-color': '#6366f1', color: '#fff' }"
+      />
+
+      @if (!collapsed()) {
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+            John Manager
+          </p>
+          <p class="text-xs text-gray-400 truncate">
+            manager&#64;company.com
+          </p>
+        </div>
+
+        <button
+          (click)="logout()"
+          class="text-gray-400 hover:text-red-500 transition-colors"
+          pTooltip="Logout"
+          tooltipPosition="top">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               class="h-4 w-4"
+               fill="none"
+               viewBox="0 0 24 24"
+               stroke="currentColor">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7"/>
+          </svg>
+        </button>
+      }
+
+    </div>
+  </div>
+
+</aside>

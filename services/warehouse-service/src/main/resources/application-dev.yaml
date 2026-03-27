@@ -3,10 +3,24 @@ spring:
     url: jdbc:postgresql://localhost:5435/warehouses
     username: administrator
     password: D31#12Sdea@#123SdZZsdup@3!
-
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
+  kafka:
+    bootstrap-servers: localhost:9092          # use localhost:9092 if running outside Docker
+    consumer:
+      group-id: warehouse-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.marko.logistics.warehouse.application.event.InventoryUpdatedEvent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
 server:
   port: 8084
