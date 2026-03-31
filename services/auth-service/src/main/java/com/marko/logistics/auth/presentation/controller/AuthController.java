@@ -11,11 +11,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,8 +26,15 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final LoginUseCase loginUseCase;
     private final RegisterUseCase registerUseCase;
-
     private final AuthService authService;
+
+    // ✅ Add these two fields
+    @Value("${auth.cookie.secure:false}")
+    private boolean secureCookie;
+
+    @Value("${auth.cookie.same-site:Lax}")
+    private String sameSite;
+
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
@@ -35,6 +45,7 @@ public class AuthController {
         AuthResponse userInfo = loginUseCase.login(request);
 
         response.addHeader(HttpHeaders.SET_COOKIE, buildSessionCookie(token).toString());
+        response.setHeader("X-Auth-Token", token);
 
         return ResponseEntity.ok(userInfo);
     }
@@ -54,23 +65,23 @@ public class AuthController {
     }
 
 
-    private ResponseCookie buildSessionCookie(String token){
+    private ResponseCookie buildSessionCookie(String token) {
         return ResponseCookie.from("SESSION", token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(secureCookie)
                 .path("/")
-                .maxAge(24 * 60 * 60)
-                .sameSite("Strict")
+                .maxAge(Duration.ofHours(24))
+                .sameSite(sameSite)
                 .build();
     }
 
     public ResponseCookie buildExpiredCookie() {
         return ResponseCookie.from("SESSION", "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(secureCookie)   // ✅ also use the config here, not hardcoded
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite(sameSite)
                 .build();
     }
 

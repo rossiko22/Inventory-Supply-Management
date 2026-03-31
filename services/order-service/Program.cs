@@ -4,6 +4,7 @@ using order_service.Infrastructure.Grpc;
 using order_service.Infrastructure.Persistence;
 using order_service.Application.Services;
 using order_service.Infrastructure.Kafka;
+using order_service.Infrastructure.Security;
 
 namespace order_service;
 
@@ -55,6 +56,9 @@ public class Program
             });
         });
 
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<RequestContext>();   
+
         var app = builder.Build();
 
         // ✅ Enable Swagger ONLY in development
@@ -68,7 +72,7 @@ public class Program
                 options.RoutePrefix = string.Empty; // Opens Swagger at root (http://localhost:xxxx/)
             });
         }
-
+        
         app.UseHttpsRedirection();
 
         app.UseAuthorization();

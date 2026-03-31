@@ -8,14 +8,24 @@ import java.util.function.Predicate;
 @Component
 public class RouteValidator {
 
-    public static final List<String> OPEN_ENDPOINTS = List.of(
+    // Paths anyone can hit without a token
+    private static final List<String> OPEN_PATHS = List.of(
             "/auth/login",
-            "/auth/logout",
-            "/auth/register"
+            "/auth/register",
+            "/actuator/health"   // for load-balancer health checks only
     );
 
-    public Predicate<String> isSecure =
-            uri -> OPEN_ENDPOINTS
-                    .stream()
-                    .noneMatch(uri::contains);
+    // Paths requiring MANAGER role (gateway enforces this before forwarding)
+    private static final List<String> MANAGER_ONLY = List.of(
+            "/companies",
+            "/users"
+    );
+
+    public boolean isSecured(String path) {
+        return OPEN_PATHS.stream().noneMatch(path::startsWith);
+    }
+
+    public boolean requiresManager(String path) {
+        return MANAGER_ONLY.stream().anyMatch(path::startsWith);
+    }
 }

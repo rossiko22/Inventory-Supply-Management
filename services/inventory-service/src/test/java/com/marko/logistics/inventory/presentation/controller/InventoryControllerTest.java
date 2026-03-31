@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marko.logistics.inventory.application.dto.CreateInventoryRequest;
 import com.marko.logistics.inventory.application.dto.InventoryResponse;
 import com.marko.logistics.inventory.application.service.InventoryService;
+import com.marko.logistics.inventory.infrastructure.security.RequestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -22,12 +23,13 @@ public class InventoryControllerTest {
     private MockMvc mockMvc;
     private InventoryService inventoryService;
     private ObjectMapper mapper;
+    private RequestContext requestContext;
 
     @BeforeEach
     void setup() {
         inventoryService = mock(InventoryService.class);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new InventoryController(inventoryService))
+                .standaloneSetup(new InventoryController(inventoryService, requestContext))
                 .build();
         mapper = new ObjectMapper();
     }

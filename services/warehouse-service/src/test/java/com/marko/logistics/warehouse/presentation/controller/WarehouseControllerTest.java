@@ -3,6 +3,7 @@ package com.marko.logistics.warehouse.presentation.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marko.logistics.warehouse.application.dto.*;
 import com.marko.logistics.warehouse.application.service.WarehouseService;
+import com.marko.logistics.warehouse.infrastructure.security.RequestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -20,11 +21,12 @@ public class WarehouseControllerTest {
     private MockMvc mockMvc;
     private WarehouseService warehouseService;
     private ObjectMapper mapper;
+    private RequestContext context;
 
     @BeforeEach
     void setup() {
         warehouseService = mock(WarehouseService.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(new WarehouseController(warehouseService)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new WarehouseController(warehouseService, context)).build();
         mapper = new ObjectMapper();
     }
 

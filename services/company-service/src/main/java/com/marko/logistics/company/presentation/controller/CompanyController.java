@@ -5,9 +5,12 @@ import com.marko.logistics.company.application.dto.CreateCompanyRequest;
 import com.marko.logistics.company.application.dto.TotalCompaniesResponse;
 import com.marko.logistics.company.application.dto.UpdateCompanyRequest;
 import com.marko.logistics.company.application.service.CompanyService;
+import com.marko.logistics.company.infrastructure.security.RequestContext;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +21,7 @@ import java.util.UUID;
 public class CompanyController {
 
     private final CompanyService companyService;
+    private final RequestContext requestContext;
 
     @PostMapping
     public CompanyResponse create(
@@ -46,13 +50,23 @@ public class CompanyController {
     @PutMapping("/{id}")
     public CompanyResponse update(
             @PathVariable UUID id,
-            @RequestBody UpdateCompanyRequest request
-            ){
+            @RequestBody UpdateCompanyRequest request){
+        // String role = requestContext.getUserRole(httpRequest);
+        // if (!"MANAGER".equalsIgnoreCase(role)) {
+        //     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Managers only");
+        // }
         return companyService.updateCompany(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id){
+    public void delete(
+            @PathVariable UUID id
+            // HttpServletRequest request
+    ){
+        // String role = requestContext.getUserRole(request);
+        // if (!"MANAGER".equalsIgnoreCase(role)) {
+        //     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Managers only");
+        // }
         companyService.deleteCompanyById(id);
     }
 

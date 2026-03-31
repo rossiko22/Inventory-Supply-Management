@@ -1,26 +1,29 @@
 package com.marko.logistics.auth.infrastructure.security;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@RequiredArgsConstructor
+@EnableWebSecurity
 public class SecurityConfig {
-    private final JwtFilter jwtFilter;
 
+    // Services only listen on their private port.
+    // The gateway strips cookies/auth headers before forwarding,
+    // so we just read X-User-* headers injected by the gateway.
     @Bean
-    public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception{
-        http
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().authenticated()
-                ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
+                        .requestMatchers("/actuator/health").permitAll()
+                        .anyRequest().permitAll()  // gateway already authenticated; service trusts headers
+                )
+                .build();
     }
 }
