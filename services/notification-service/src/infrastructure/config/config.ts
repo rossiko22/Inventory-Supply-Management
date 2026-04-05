@@ -3,10 +3,10 @@ dotenv.config();
 
 export const config = {
   http: {
-    port: parseInt(process.env['PORT'] ?? '3100', 10),
+    port: parseInt(process.env['PORT'] ?? '8080', 10),
   },
   ws: {
-    port: parseInt(process.env['WS_PORT'] ?? '3101', 10),
+    port: parseInt(process.env['WS_PORT'] ?? '9091', 10),
   },
   kafka: {
     brokers:  (process.env['KAFKA_BROKERS'] ?? 'localhost:9092').split(','),
@@ -21,10 +21,10 @@ export const config = {
     },
   },
   db: {
-    host:     process.env['DB_HOST']     ?? 'localhost',
-    port:     parseInt(process.env['DB_PORT'] ?? '5432', 10),
-    database: process.env['DB_NAME']     ?? 'notifications_db',
-    user:     process.env['DB_USER']     ?? 'postgres',
-    password: process.env['DB_PASSWORD'] ?? 'postgres',
+    host:     'localhost',
+    port:     5439,
+    database: 'notifications',
+    user:     'administrator',
+    password: 'D31#12Sdea@#123SdZZsdup@3!',
   },
 } as const;

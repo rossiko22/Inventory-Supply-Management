@@ -57,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private Optional<String> extractToken(HttpServletRequest request) {
         if (request.getCookies() != null) {
             return Arrays.stream(request.getCookies())
-                    .filter(c -> "SESSION".equals(c.getName()))
+                    .filter(c -> "AUTH_TOKEN".equals(c.getName()))
                     .map(Cookie::getValue)
                     .findFirst();
         }

@@ -4,8 +4,8 @@ import { Category, CreateCategoryRequest, CreateProductRequest, Product, UpdateP
 import { Observable } from 'rxjs';
 
 
-const PRODUCT_BASE_URL = 'http://localhost:8085/products';
-const CATEGORY_BASE_URL = 'http://localhost:8085/categories';
+const PRODUCT_BASE_URL = '/api/products';
+const CATEGORY_BASE_URL = '/api/categories';
 
 @Injectable({
   providedIn: 'root',

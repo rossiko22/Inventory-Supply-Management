@@ -49,11 +49,11 @@ public class JwtAuthenticationFilter implements GlobalFilter {
         try {
             Claims claims = jwtService.validateToken(token);
 
-            // ✅ Add it here — token is valid, claims are available
-            String role = claims.get("role", String.class);
-            if (routeValidator.requiresManager(path) && !"MANAGER".equalsIgnoreCase(role)) {
-                return forbidden(exchange, "Insufficient permissions");
-            }
+//            // ✅ Add it here — token is valid, claims are available
+//            String role = claims.get("role", String.class);
+//            if (routeValidator.requiresManager(path) && !"MANAGER".equalsIgnoreCase(role)) {
+//                return forbidden(exchange, "Insufficient permissions");
+//            }
 
 
             // Strip the cookie, inject safe internal headers
@@ -80,7 +80,7 @@ public class JwtAuthenticationFilter implements GlobalFilter {
 
     private String extractToken(ServerWebExchange exchange) {
         // 1. HttpOnly cookie (set by auth service on login)
-        HttpCookie cookie = exchange.getRequest().getCookies().getFirst("SESSION");
+        HttpCookie cookie = exchange.getRequest().getCookies().getFirst("AUTH_TOKEN");
         if (cookie != null && StringUtils.hasText(cookie.getValue())) {
             return cookie.getValue();
         }

@@ -101,18 +101,23 @@
     <div class="flex items-center gap-3 px-2 py-2 rounded-lg">
 
       <p-avatar
-        label="JM"
+        [label]="initials()"
         styleClass="!w-8 !h-8 !text-xs font-semibold shrink-0"
-        [style]="{ 'background-color': '#6366f1', color: '#fff' }"
+        [style]="{ 'background-color': avatarColor(), color: '#fff' }"
       />
+
 
       @if (!collapsed()) {
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-            John Manager
+            {{fullName()}}
           </p>
           <p class="text-xs text-gray-400 truncate">
-            manager&#64;company.com
+            {{ userEmail() }}
+          </p>
+          <!-- ✅ ROLE -->
+          <p class="text-[11px] font-medium text-indigo-500 uppercase tracking-wide">
+            {{ roleLabel() }}
           </p>
         </div>
 

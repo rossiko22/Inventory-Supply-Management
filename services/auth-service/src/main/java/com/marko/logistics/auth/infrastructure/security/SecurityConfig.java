@@ -15,14 +15,32 @@ public class SecurityConfig {
     // Services only listen on their private port.
     // The gateway strips cookies/auth headers before forwarding,
     // so we just read X-User-* headers injected by the gateway.
+
+    //Version 1
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        return http
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/actuator/health").permitAll()
+//                        .anyRequest().permitAll()  // gateway already authenticated; service trusts headers
+//                )
+//                .build();
+//    }
+
+    // Version 2
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health").permitAll()
-                        .anyRequest().permitAll()  // gateway already authenticated; service trusts headers
+                        .anyRequest().permitAll()
+                )
+                .sessionManagement(s -> s
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .disable()
                 )
                 .build();
     }

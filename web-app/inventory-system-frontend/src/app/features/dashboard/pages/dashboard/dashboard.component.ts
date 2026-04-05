@@ -10,6 +10,9 @@ import { Warehouse } from '../../../../core/models/warehouse.model';
 import { INT_TO_STATUS, mapOrder, Order, OrderApiResponse, STATUS_TO_INT } from '../../../../core/models/order.model';
 import { Company } from '../../../../core/models/company.model';
 import { getWeekRange } from '../../../../core/utils/date.utils';
+import {WarehouseService} from '../../../warehouses/services/warehouse.service';
+import {CompanyService} from '../../../companies/services/company.service';
+import {OrderService} from '../../../orders/services/order.service';
 
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -21,7 +24,10 @@ const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit{
-  private http = inject(HttpClient);
+  private readonly warehouseService: WarehouseService = inject(WarehouseService);
+  private readonly companyService: CompanyService = inject(CompanyService);
+  private readonly orderService: OrderService = inject(OrderService);
+
   readonly warehouses = signal<Warehouse[]>([]);
   readonly companies = signal<Company[]>([]);
   readonly orders = signal<Order[]>([]);
@@ -69,26 +75,24 @@ export class DashboardComponent implements OnInit{
 
   ngOnInit(): void {
 
-    this.http.get<Warehouse[]>('http://localhost:8084/warehouses')
-    .subscribe({
-      next: res => this.warehouses.set(res),
-      error: err => console.log("Failed to fetch total warehouses ", err),
-    })
-    
-
-    this.http.get<Company[]>('http://localhost:8082/companies')
-    .subscribe({
-      next: res => this.companies.set(res),
-      error: err => console.error('Failed to fetch total companies', err),
-    });
-
-    this.http.get<OrderApiResponse[]>('http://localhost:8087/orders')
+    this.warehouseService.getAll()
       .subscribe({
-        next: (res: OrderApiResponse[]) => this.orders.set(res.map(o => mapOrder(o))),
-        error: err => console.error('Failed to fetch orders', err),
+          next: res => this.warehouses.set(res),
+           error: err => console.log("Failed to fetch total warehouses ", err),
       });
 
-  } 
+    this.companyService.getAll()
+      .subscribe({
+          next: res => this.companies.set(res),
+           error: err => console.log("Failed to fetch total companies ", err),
+      });
+
+    this.orderService.getAll().subscribe({
+      next: (res: Order[]) => this.orders.set(res),  // ← already mapped, just set it
+      error: err => console.error('Failed to fetch orders', err),
+    });
+
+  }
 
 // 2. Replace the barChartData computed signal with this
 readonly barChartData = computed(() => {
@@ -137,7 +141,7 @@ readonly barChartData = computed(() => {
       name: w.name,
       value: w.usedCapacity
     }));
-    
+
 
     return {
       labels: stockByWarehouse.map(s => s.name.replace(' Warehouse', '')),

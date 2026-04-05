@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { InventoryItem } from '../../../core/models/inventory.model';
 import { Observable } from 'rxjs';
 
-const INVENTORY_BASE_URL = 'http://localhost:8086/inventory';
+const INVENTORY_BASE_URL = '/api/inventory';
 
 @Injectable({
   providedIn: 'root',

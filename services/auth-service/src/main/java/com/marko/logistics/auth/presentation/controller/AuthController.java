@@ -29,10 +29,10 @@ public class AuthController {
     private final AuthService authService;
 
     // ✅ Add these two fields
-    @Value("${auth.cookie.secure:false}")
+    @Value("${auth.cookie.secure}")
     private boolean secureCookie;
 
-    @Value("${auth.cookie.same-site:Lax}")
+    @Value("${auth.cookie.same-site}")
     private String sameSite;
 
 
@@ -66,7 +66,7 @@ public class AuthController {
 
 
     private ResponseCookie buildSessionCookie(String token) {
-        return ResponseCookie.from("SESSION", token)
+        return ResponseCookie.from("AUTH_TOKEN", token)  // ← rename from SESSION
                 .httpOnly(true)
                 .secure(secureCookie)
                 .path("/")
@@ -76,9 +76,9 @@ public class AuthController {
     }
 
     public ResponseCookie buildExpiredCookie() {
-        return ResponseCookie.from("SESSION", "")
+        return ResponseCookie.from("AUTH_TOKEN", "")  // ← rename from SESSION
                 .httpOnly(true)
-                .secure(secureCookie)   // ✅ also use the config here, not hardcoded
+                .secure(secureCookie)
                 .path("/")
                 .maxAge(0)
                 .sameSite(sameSite)

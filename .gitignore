@@ -15,9 +15,11 @@ logs/
 .env
 .env.*
 *.env
-application-*.yml
-application-*.yaml
-application-*.properties
+
+# Only ignore LOCAL configs, not main ones
+application-*.local.yml
+application-*.local.yaml
+application-*.local.properties
 
 ############################################
 # JAVA / SPRING BOOT
@@ -27,7 +29,6 @@ target/
 *.war
 *.ear
 *.class
-*.log
 
 # IntelliJ
 .idea/
@@ -40,7 +41,6 @@ node_modules/
 dist/
 .angular/
 coverage/
-*.log
 
 ############################################
 # .NET
@@ -58,25 +58,14 @@ obj/
 *.pid
 *.seed
 *.pid.lock
+docker-data/
 
 ############################################
 # PROJECT SPECIFIC
 ############################################
-
-# Logs inside services
 services/**/logs/
 services/**/*.log
 
-# Inventory logs
-services/inventory-service/*.log
-
-# Warehouse logs
-services/warehouse-service/*.log
-
-# Order service logs
-services/order-service/*.log
-
-# Angular build
 web-app/**/dist/
 web-app/**/node_modules/
 

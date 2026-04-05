@@ -5,7 +5,7 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { catchError, filter, map, retry, takeUntil, timer } from 'rxjs';
 import { AppNotification } from '../models/notification.model';
 
-const HTTP_URL = 'http://localhost:8088/notifications';
+const HTTP_URL = '/api/notifications';
 const WS_URL   = 'ws://localhost:9091';
 
 interface WsMessage {

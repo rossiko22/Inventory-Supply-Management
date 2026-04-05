@@ -1,9 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { AvatarModule } from 'primeng/avatar';
 import { ThemeService } from '../../services/theme.service';
 import { AuthService } from '../../services/auth.service';
+import {email} from '@angular/forms/signals';
 
 
 interface NavItem {
@@ -35,8 +36,43 @@ export class SidebarComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  readonly user = this.authService.currentUser;
+  readonly initials = this.authService.initials;
+  readonly fullName = this.authService.fullName;
+  readonly roleLabel = this.authService.roleLabel;
+  readonly userEmail = this.authService.userEmail;
+
   readonly collapsed = signal(false);
   readonly navItems = NAV_ITEMS;
+
+  private readonly avatarColors = [
+    '#6366f1', // indigo
+    '#22c55e', // green
+    '#06b6d4', // cyan
+    '#f59e0b', // amber
+    '#ef4444', // red
+    '#a855f7', // purple
+    '#ec4899', // pink
+    '#14b8a6', // teal
+    '#3b82f6', // blue
+    '#84cc16'  // lime
+  ];
+
+  readonly avatarColor = computed(() => {
+    const user = this.authService.currentUser(); // or this.authService.currentUser()
+    if (!user) return '#6366f1';
+
+    const str = user.email || user.name;
+
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const index = Math.abs(hash) % this.avatarColors.length;
+    return this.avatarColors[index];
+  });
+
 
   logout(): void {
     this.authService.logout().subscribe({
@@ -45,4 +81,5 @@ export class SidebarComponent {
     })
   }
 
+  protected readonly email = email;
 }

@@ -12,20 +12,20 @@ public class RouteValidator {
     private static final List<String> OPEN_PATHS = List.of(
             "/auth/login",
             "/auth/register",
-            "/actuator/health"   // for load-balancer health checks only
+            "/auth/logout",
+            "/auth/refresh",
+            "/actuator/health"
     );
 
     // Paths requiring MANAGER role (gateway enforces this before forwarding)
-    private static final List<String> MANAGER_ONLY = List.of(
-            "/companies",
-            "/users"
-    );
+//    private static final List<String> MANAGER_ONLY = List.of(
+//    );
 
     public boolean isSecured(String path) {
         return OPEN_PATHS.stream().noneMatch(path::startsWith);
     }
 
-    public boolean requiresManager(String path) {
-        return MANAGER_ONLY.stream().anyMatch(path::startsWith);
-    }
+//    public boolean requiresManager(String path) {
+//        return MANAGER_ONLY.stream().anyMatch(path::startsWith);
+//    }
 }

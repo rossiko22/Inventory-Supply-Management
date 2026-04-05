@@ -14,18 +14,6 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // ── CORS ──────────────────────────────────────────────────────────
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowAngular", policy =>
-            {
-                policy
-                    .WithOrigins("http://localhost:4200")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials(); // required because Angular sends withCredentials: true
-            });
-        });
         
         // Controllers
         builder.Services.AddControllers();
@@ -79,7 +67,6 @@ public class Program
 
         app.MapControllers();
 
-        app.UseCors("AllowAngular");
         app.Run();
     }
 }

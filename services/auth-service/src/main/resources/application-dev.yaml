@@ -1,0 +1,24 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/users
+    username: administrator
+    password: D31#12Sdea@#123SdZZsdup@3!
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+jwt:
+  secret: ewzqAN2z1bq7yYFcN3/KId4wbohavFXxHE7nnr82lZE=
+  expiration-ms: 3600000
+
+auth:
+  cookie:
+    secure: false        # false for localhost (no HTTPS)
+    same-site: Lax       # Lax works fine with proxy

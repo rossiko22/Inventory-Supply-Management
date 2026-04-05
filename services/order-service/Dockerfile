@@ -1,23 +1,23 @@
-﻿# Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+﻿FROM mcr.microsoft.com/dotnet/sdk:9.0
+
 WORKDIR /app
 
-# Copy solution and both csproj files for restore caching
-COPY *.sln .
-COPY *.csproj ./
-COPY order-service.Tests/order-service.Tests.csproj ./order-service.Tests/
+# Copy only main project
+COPY order-service.csproj .
 
-RUN dotnet restore
+# Copy Protos if needed
+COPY Protos ./Protos
 
-# Copy everything and publish only the main project
+# Restore only main project (FAST + cached)
+RUN dotnet restore order-service.csproj
+
+# Copy rest of source
 COPY . .
-RUN dotnet publish order-service.csproj -c Release -o /app/publish /p:UseAppHost=false
 
-# Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
-WORKDIR /app
-COPY --from=build /app/publish .
+# Install EF tools
+RUN dotnet tool install --global dotnet-ef --version 9.*
+ENV PATH="$PATH:/root/.dotnet/tools"
 
 EXPOSE 8087
 
-ENTRYPOINT ["dotnet", "order-service.dll"]
+CMD ["dotnet", "watch", "run", "--urls", "http://+:8087"]

@@ -30,6 +30,7 @@ public class CompanyController {
         return companyService.createCompany(request);
     }
 
+
     @GetMapping
     public List<CompanyResponse> getAll(){
         return companyService.getAllCompanies();
@@ -51,22 +52,14 @@ public class CompanyController {
     public CompanyResponse update(
             @PathVariable UUID id,
             @RequestBody UpdateCompanyRequest request){
-        // String role = requestContext.getUserRole(httpRequest);
-        // if (!"MANAGER".equalsIgnoreCase(role)) {
-        //     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Managers only");
-        // }
+
         return companyService.updateCompany(id, request);
     }
 
     @DeleteMapping("/{id}")
     public void delete(
             @PathVariable UUID id
-            // HttpServletRequest request
     ){
-        // String role = requestContext.getUserRole(request);
-        // if (!"MANAGER".equalsIgnoreCase(role)) {
-        //     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Managers only");
-        // }
         companyService.deleteCompanyById(id);
     }
 

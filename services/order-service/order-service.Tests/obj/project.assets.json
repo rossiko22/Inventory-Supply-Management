@@ -3545,11 +3545,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/unknown/Desktop/Moi-Proekti-Angular-SpringBoot/InventoryAndSupplyManagementProject/inventory-supply-system/services/order-service/order-service.Tests/order-service.Tests.csproj",
+      "projectUniqueName": "/home/unknown/Desktop/Moi-Proekti-Angular-SpringBoot/erp-inventory/Inventory-Supply-Management/services/order-service/order-service.Tests/order-service.Tests.csproj",
       "projectName": "order-service.Tests",
-      "projectPath": "/home/unknown/Desktop/Moi-Proekti-Angular-SpringBoot/InventoryAndSupplyManagementProject/inventory-supply-system/services/order-service/order-service.Tests/order-service.Tests.csproj",
+      "projectPath": "/home/unknown/Desktop/Moi-Proekti-Angular-SpringBoot/erp-inventory/Inventory-Supply-Management/services/order-service/order-service.Tests/order-service.Tests.csproj",
       "packagesPath": "/home/unknown/.nuget/packages/",
-      "outputPath": "/home/unknown/Desktop/Moi-Proekti-Angular-SpringBoot/InventoryAndSupplyManagementProject/inventory-supply-system/services/order-service/order-service.Tests/obj/",
+      "outputPath": "/home/unknown/Desktop/Moi-Proekti-Angular-SpringBoot/erp-inventory/Inventory-Supply-Management/services/order-service/order-service.Tests/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/unknown/.nuget/NuGet/NuGet.Config"
@@ -3564,8 +3564,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "/home/unknown/Desktop/Moi-Proekti-Angular-SpringBoot/InventoryAndSupplyManagementProject/inventory-supply-system/services/order-service/order-service.csproj": {
-              "projectPath": "/home/unknown/Desktop/Moi-Proekti-Angular-SpringBoot/InventoryAndSupplyManagementProject/inventory-supply-system/services/order-service/order-service.csproj"
+            "/home/unknown/Desktop/Moi-Proekti-Angular-SpringBoot/erp-inventory/Inventory-Supply-Management/services/order-service/order-service.csproj": {
+              "projectPath": "/home/unknown/Desktop/Moi-Proekti-Angular-SpringBoot/erp-inventory/Inventory-Supply-Management/services/order-service/order-service.csproj"
             }
           }
         }
