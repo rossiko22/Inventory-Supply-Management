@@ -7,6 +7,11 @@ namespace order_service.Infrastructure.Kafka;
 
 public class KafkaProducer : IKafkaProducer, IDisposable
 {
+    private static readonly JsonSerializerOptions KafkaJsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private readonly IProducer<string, string> _producer;
     private readonly ILogger<KafkaProducer> _logger;
 
@@ -40,7 +45,7 @@ public class KafkaProducer : IKafkaProducer, IDisposable
         var message = new Message<string, string>
         {
             Key   = key,
-            Value = JsonSerializer.Serialize(payload),
+            Value = JsonSerializer.Serialize(payload, KafkaJsonOptions),
         };
 
         var result = await _producer.ProduceAsync(topic, message);

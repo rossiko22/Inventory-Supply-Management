@@ -1,7 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { CreateOrderRequest, Order, OrderStatus, STATUS_TO_INT } from '../../../core/models/order.model';
-import { Observable } from 'rxjs';
+import {
+  CreateOrderRequest,
+  mapOrder,
+  Order,
+  OrderApiResponse,
+  OrderStatus,
+  STATUS_TO_INT
+} from '../../../core/models/order.model';
+import {map, Observable} from 'rxjs';
 
 const ORDER_BASE_URL = '/api/orders';
 
@@ -12,7 +19,8 @@ export class OrderService {
    private readonly http = inject(HttpClient);
 
   getAll(): Observable<Order[]> {
-    return this.http.get<Order[]>(ORDER_BASE_URL);
+    return this.http.get<OrderApiResponse[]>(ORDER_BASE_URL)
+      .pipe(map(res => res.map(mapOrder))); // convert number → string here
   }
 
   create(request: CreateOrderRequest): Observable<Order> {

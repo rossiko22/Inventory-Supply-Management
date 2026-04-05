@@ -11,13 +11,14 @@ namespace OrderService.Tests.Presentation.Controller;
 public class OrdersControllerTest
 {
     private readonly Mock<IOrderService> _serviceMock;
-    private readonly Mock<IDocumentStorageService> _documentStorageService;
+    private readonly Mock<IDocumentStorageService> _documentStorageServiceMock;
     private readonly OrdersController _controller;
  
     public OrdersControllerTest()
     {
         _serviceMock = new Mock<IOrderService>();
-        _controller = new OrdersController(_serviceMock.Object, _documentStorageService.Object);
+        _documentStorageServiceMock = new Mock<IDocumentStorageService>();
+        _controller = new OrdersController(_serviceMock.Object, _documentStorageServiceMock.Object);
     }
  
     [Fact]

@@ -40,6 +40,8 @@ public class OrderService : IOrderService
             throw new Exception("Order not found");
         }
 
+        var oldStatus = order.Status.ToString();
+
         order.UpdateStatus(status);
         await _repository.UpdateAsync(order);
 
@@ -54,13 +56,7 @@ public class OrderService : IOrderService
 
             _logger.LogInformation("Inventory gRPC call completed for order {OrderId}", orderId);
         }
-        
-        var oldStatus = order.Status.ToString();        // ← capture before update
-        order.UpdateStatus(status);
-        await _repository.UpdateAsync(order);
 
-        _logger.LogInformation("Order {OrderId} status updated to {Status}", orderId, status);
-        
         // ── Publish to Kafka ──────────────────────────────────────────────
         await _kafkaProducer.PublishOrderStatusChangedAsync(new OrderStatusChangedEvent
         {

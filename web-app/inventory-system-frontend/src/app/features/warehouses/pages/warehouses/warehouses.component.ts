@@ -63,7 +63,7 @@ export class WarehousesComponent implements OnInit{
   private loadWarehouses(): void {
     this.isLoading.set(true);
     this.warehouseService.getAll().subscribe({
-      next: (data) => { 
+      next: (data) => {
         this.warehouses.set(data);
         this.isLoading.set(false);
       },
@@ -104,7 +104,7 @@ export class WarehousesComponent implements OnInit{
 
     if (this.isEditing() && this.editingId()){
       this.warehouseService
-      .update(this.editingId()!, {name: name!, country: country!, city: city!, totalCapacity: totalCapacity!})
+      .update(this.editingId()!, {name: name!, country: country!, city: city!, usedCapacity: totalCapacity!})
       .subscribe({
         next: (updated) =>{
           this.warehouses.update(list => list.map(w => w.id === updated.id ? updated: w));

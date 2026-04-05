@@ -172,4 +172,6 @@ readonly barChartData = computed(() => {
   companyName(companyId: string): string {
     return this.companies().find(c => c.id === companyId)?.name ?? '—';
   }
+
+  protected readonly INT_TO_STATUS = INT_TO_STATUS;
 }

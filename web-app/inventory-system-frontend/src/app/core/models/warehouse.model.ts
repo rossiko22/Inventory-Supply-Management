@@ -21,7 +21,7 @@ export interface UpdateWarehouseRequest {
     name: string;
     country: Country;
     city: City;
-    totalCapacity: number;
+    usedCapacity: number;
 }
 
 export const COUNTRY_OPTIONS: { label: string; value: Country }[] = [

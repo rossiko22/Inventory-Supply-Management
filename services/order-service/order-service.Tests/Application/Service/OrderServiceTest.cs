@@ -13,17 +13,25 @@ public class OrderServiceTest
 {
     private readonly Mock<IOrderRepository> _repositoryMock;
     private readonly Mock<IInventoryGrpcClient> _grpcClientMock;
+    private readonly Mock<IDocumentStorageService> _documentStorageServiceMock;
+    private readonly Mock<IKafkaProducer> _kafkaProducerMock;
     private readonly order_service.Application.Services.OrderService _service;
     private readonly Mock<ILogger<order_service.Application.Services.OrderService>> _loggerMock;
-    private readonly DocumentStorageService _storageService;
-    private readonly IKafkaProducer _kafkaProducer;
  
     public OrderServiceTest()
     {
         _repositoryMock = new Mock<IOrderRepository>();
         _grpcClientMock = new Mock<IInventoryGrpcClient>();
+        _documentStorageServiceMock = new Mock<IDocumentStorageService>();
+        _kafkaProducerMock = new Mock<IKafkaProducer>();
         _loggerMock = new Mock<ILogger<order_service.Application.Services.OrderService>>();
-        _service = new order_service.Application.Services.OrderService(_repositoryMock.Object, _grpcClientMock.Object, _loggerMock.Object,  _storageService, _kafkaProducer);
+        _service = new order_service.Application.Services.OrderService(
+            _repositoryMock.Object,
+            _grpcClientMock.Object,
+            _loggerMock.Object,
+            _documentStorageServiceMock.Object,
+            _kafkaProducerMock.Object
+        );
     }
  
     [Fact]
@@ -41,6 +49,9 @@ public class OrderServiceTest
         _repositoryMock
             .Setup(r => r.SaveAsync(It.IsAny<Order>()))
             .ReturnsAsync((Order o) => o);
+        _kafkaProducerMock
+            .Setup(k => k.PublishOrderCreatedAsync(It.IsAny<OrderCreatedEvent>()))
+            .Returns(Task.CompletedTask);
  
         var response = await _service.CreateOrderAsync(request);
  
@@ -74,6 +85,9 @@ public class OrderServiceTest
  
         _repositoryMock.Setup(r => r.GetByIdAsync(order.Id)).ReturnsAsync(order);
         _repositoryMock.Setup(r => r.UpdateAsync(It.IsAny<Order>())).ReturnsAsync((Order o) => o);
+        _kafkaProducerMock
+            .Setup(k => k.PublishOrderStatusChangedAsync(It.IsAny<OrderStatusChangedEvent>()))
+            .Returns(Task.CompletedTask);
  
         var response = await _service.UpdateStatusAsync(order.Id, Status.Approved);
  
@@ -91,6 +105,9 @@ public class OrderServiceTest
         _grpcClientMock
             .Setup(g => g.SendInventoryAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<int>()))
             .Returns(Task.CompletedTask);
+        _kafkaProducerMock
+            .Setup(k => k.PublishOrderStatusChangedAsync(It.IsAny<OrderStatusChangedEvent>()))
+            .Returns(Task.CompletedTask);
  
         await _service.UpdateStatusAsync(order.Id, Status.Closed);
  
@@ -107,6 +124,9 @@ public class OrderServiceTest
  
         _repositoryMock.Setup(r => r.GetByIdAsync(order.Id)).ReturnsAsync(order);
         _repositoryMock.Setup(r => r.UpdateAsync(It.IsAny<Order>())).ReturnsAsync((Order o) => o);
+        _kafkaProducerMock
+            .Setup(k => k.PublishOrderStatusChangedAsync(It.IsAny<OrderStatusChangedEvent>()))
+            .Returns(Task.CompletedTask);
  
         await _service.UpdateStatusAsync(order.Id, Status.Delivered);
  
