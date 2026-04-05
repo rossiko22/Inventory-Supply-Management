@@ -27,12 +27,6 @@ The current implementation combines:
 - a Node.js notification service with HTTP and WebSocket delivery
 - PostgreSQL per service, Kafka for asynchronous events, and gRPC between orders and inventory
 
-## Preview
-
-<p align="center">
-  <img src="docs/screenshots/Dashboard.png" alt="InventoryPro dashboard overview" width="100%" />
-</p>
-
 ## Highlights
 
 - Role-aware authentication with JWT stored in an `HttpOnly` cookie
@@ -87,12 +81,27 @@ flowchart TD
 ## Screenshots
 
 <p align="center">
+  <img src="docs/screenshots/Dashboard.png" alt="InventoryPro dashboard overview" width="48%" />
   <img src="docs/screenshots/Login.png" alt="InventoryPro login screen" width="48%" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/Warehouses.png" alt="InventoryPro warehouses page" width="48%" />
   <img src="docs/screenshots/Products.png" alt="InventoryPro products page" width="48%" />
 </p>
 
 <p align="center">
+  <img src="docs/screenshots/Stock.png" alt="InventoryPro stock page" width="48%" />
   <img src="docs/screenshots/Orders.png" alt="InventoryPro orders page" width="48%" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/Companies.png" alt="InventoryPro companies page" width="48%" />
+  <img src="docs/screenshots/Vehicles.png" alt="InventoryPro vehicles page" width="48%" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/Drivers.png" alt="InventoryPro drivers page" width="48%" />
   <img src="docs/screenshots/Notifications_Dark_Mode.png" alt="InventoryPro notifications panel in dark mode" width="48%" />
 </p>
 
