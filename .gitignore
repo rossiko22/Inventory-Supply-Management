@@ -15,8 +15,7 @@ logs/
 .env
 .env.*
 *.env
-
-# Only ignore LOCAL configs, not main ones
+# Only ignore local overrides, not main configs
 application-*.local.yml
 application-*.local.yaml
 application-*.local.properties
@@ -29,6 +28,7 @@ target/
 *.war
 *.ear
 *.class
+*.log
 
 # IntelliJ
 .idea/
@@ -41,16 +41,27 @@ node_modules/
 dist/
 .angular/
 coverage/
+*.log
 
 ############################################
-# .NET
+# .NET / C#
 ############################################
 bin/
 obj/
+Debug/
+Release/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
+*.coverage
+*.trx
+*.TestResults/
+*.ncrunch*
+*.dotCover
+*.opencover
+*.snap
+*.log
 
 ############################################
 # DOCKER
@@ -66,14 +77,17 @@ docker-data/
 services/**/logs/
 services/**/*.log
 
+# Migration outputs (EF Core / SQL migrations)
+services/**/Migrations/*.Designer.cs
+services/**/Migrations/*.cs
+
+# Angular build & node modules
 web-app/**/dist/
 web-app/**/node_modules/
 
 # VS Code
 .vscode/
 
-############################################
-# TEST OUTPUT
-############################################
+# Test output
 coverage/
 test-output/
