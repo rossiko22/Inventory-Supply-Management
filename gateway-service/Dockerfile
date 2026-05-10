@@ -4,10 +4,7 @@ WORKDIR /app
 
 # copy only pom first (cache)
 COPY pom.xml .
-RUN mvn dependency:go-offline
-
-# copy source
-COPY . .
+COPY src ./src
 
 EXPOSE 8080
 

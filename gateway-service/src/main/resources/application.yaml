@@ -17,34 +17,34 @@ spring:
         webflux:
           routes:
             - id: auth-service
-              uri: http://localhost:8081
+              uri: ${AUTH_SERVICE_URL:http://localhost:8081}
               predicates:
                 - Path=/auth/**
             - id: company-service
-              uri: http://localhost:8082
+              uri: ${COMPANY_SERVICE_URL:http://localhost:8082}
               predicates:
                 - Path=/companies/**
             - id: fleet-service
-              uri: http://localhost:8083
+              uri: ${FLEET_SERVICE_URL:http://localhost:8083}
               predicates:
                 - Path=/drivers/**,/vehicles/**
             - id: inventory-service
-              uri: http://localhost:8086
+              uri: ${INVENTORY_SERVICE_URL:http://localhost:8086}
               predicates:
                 - Path=/inventory/**
             - id: notification-service
-              uri: http://localhost:8088
+              uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8088}
               predicates:
                 - Path=/notifications/**
             - id: order-service
-              uri: http://localhost:8087
+              uri: ${ORDER_SERVICE_URL:http://localhost:8087}
               predicates:
                 - Path=/orders/**
             - id: product-service
-              uri: http://localhost:8085
+              uri: ${PRODUCT_SERVICE_URL:http://localhost:8085}
               predicates:
                 - Path=/products/**,/categories/**
             - id: warehouses-service
-              uri: http://localhost:8084
+              uri: ${WAREHOUSE_SERVICE_URL:http://localhost:8084}
               predicates:
                 - Path=/warehouses/**
