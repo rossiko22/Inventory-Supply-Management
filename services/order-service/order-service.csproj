@@ -23,6 +23,8 @@
 
     <ItemGroup>
         <PackageReference Include="Confluent.Kafka" Version="2.13.2" />
+        <PackageReference Include="Polly" Version="8.4.1" />
+        <PackageReference Include="Polly.Extensions" Version="8.4.1" />
         <PackageReference Include="Grpc.Net.Client" Version="2.76.0" />
         <PackageReference Include="Google.Protobuf" Version="3.34.0" />
         <PackageReference Include="Grpc.Tools" Version="2.78.0">

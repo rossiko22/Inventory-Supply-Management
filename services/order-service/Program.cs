@@ -4,7 +4,9 @@ using order_service.Infrastructure.Grpc;
 using order_service.Infrastructure.Persistence;
 using order_service.Application.Services;
 using order_service.Infrastructure.Kafka;
+using order_service.Infrastructure.Resilience;
 using order_service.Infrastructure.Security;
+using Polly;
 
 namespace order_service;
 
@@ -26,6 +28,11 @@ public class Program
         builder.Services.AddScoped<IOrderRepository, OrderRepository>();
         
         builder.Services.AddScoped<IDocumentStorageService, DocumentStorageService>();
+
+        // Circuit Breaker — shared singleton protecting all gRPC calls to inventory-service
+        builder.Services.AddSingleton<ResiliencePipeline>(sp =>
+            InventoryCircuitBreaker.Create(
+                sp.GetRequiredService<ILogger<InventoryGrpcClient>>()));
 
         builder.Services.AddScoped<IInventoryGrpcClient, InventoryGrpcClient>();
         // Database

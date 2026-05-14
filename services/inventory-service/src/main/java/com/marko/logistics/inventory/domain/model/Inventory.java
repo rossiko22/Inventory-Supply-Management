@@ -39,6 +39,15 @@ public class Inventory {
         quantity += amount;
     }
 
+    public void reduce(int amount) {
+        validate(amount);
+        if (this.quantity < amount) {
+            throw new IllegalArgumentException(
+                    "Insufficient stock: available=" + this.quantity + ", requested=" + amount);
+        }
+        quantity -= amount;
+    }
+
     public void validate(int amount){
         if(amount <= 0){
             throw new IllegalArgumentException("Amount must be > 0");

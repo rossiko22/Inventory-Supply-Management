@@ -1,9 +1,14 @@
 package com.marko.logistics.inventory.presentation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.marko.logistics.inventory.application.command.AddStockCommand;
+import com.marko.logistics.inventory.application.command.handler.AddStockCommandHandler;
 import com.marko.logistics.inventory.application.dto.CreateInventoryRequest;
 import com.marko.logistics.inventory.application.dto.InventoryResponse;
-import com.marko.logistics.inventory.application.service.InventoryService;
+import com.marko.logistics.inventory.application.query.GetAllInventoryQuery;
+import com.marko.logistics.inventory.application.query.GetInventoryByWarehouseQuery;
+import com.marko.logistics.inventory.application.query.handler.GetAllInventoryQueryHandler;
+import com.marko.logistics.inventory.application.query.handler.GetInventoryByWarehouseQueryHandler;
 import com.marko.logistics.inventory.infrastructure.security.RequestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -21,15 +27,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class InventoryControllerTest {
 
     private MockMvc mockMvc;
-    private InventoryService inventoryService;
+    private AddStockCommandHandler addStockHandler;
+    private GetAllInventoryQueryHandler getAllHandler;
+    private GetInventoryByWarehouseQueryHandler getByWarehouseHandler;
     private ObjectMapper mapper;
-    private RequestContext requestContext;
 
     @BeforeEach
     void setup() {
-        inventoryService = mock(InventoryService.class);
+        addStockHandler = mock(AddStockCommandHandler.class);
+        getAllHandler = mock(GetAllInventoryQueryHandler.class);
+        getByWarehouseHandler = mock(GetInventoryByWarehouseQueryHandler.class);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new InventoryController(inventoryService, requestContext))
+                .standaloneSetup(new InventoryController(
+                        addStockHandler, getAllHandler, getByWarehouseHandler, mock(RequestContext.class)))
                 .build();
         mapper = new ObjectMapper();
     }
@@ -39,7 +49,7 @@ public class InventoryControllerTest {
         InventoryResponse r1 = new InventoryResponse(UUID.randomUUID().toString(), "prod-1", "wh-1", 10);
         InventoryResponse r2 = new InventoryResponse(UUID.randomUUID().toString(), "prod-2", "wh-1", 20);
 
-        when(inventoryService.getAllInventory()).thenReturn(List.of(r1, r2));
+        when(getAllHandler.handle(any(GetAllInventoryQuery.class))).thenReturn(List.of(r1, r2));
 
         mockMvc.perform(get("/inventory"))
                 .andExpect(status().isOk())
@@ -53,7 +63,7 @@ public class InventoryControllerTest {
         String warehouseId = "wh-42";
         InventoryResponse r = new InventoryResponse(UUID.randomUUID().toString(), "prod-1", warehouseId, 5);
 
-        when(inventoryService.getByWarehouseId(warehouseId)).thenReturn(List.of(r));
+        when(getByWarehouseHandler.handle(any(GetInventoryByWarehouseQuery.class))).thenReturn(List.of(r));
 
         mockMvc.perform(get("/inventory/" + warehouseId))
                 .andExpect(status().isOk())
@@ -66,7 +76,7 @@ public class InventoryControllerTest {
         CreateInventoryRequest request = new CreateInventoryRequest("wh-1", "prod-1", 30);
         InventoryResponse response = new InventoryResponse(UUID.randomUUID().toString(), "prod-1", "wh-1", 30);
 
-        when(inventoryService.addStock(request)).thenReturn(response);
+        when(addStockHandler.handle(any(AddStockCommand.class))).thenReturn(response);
 
         mockMvc.perform(post("/inventory")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -78,17 +88,17 @@ public class InventoryControllerTest {
     }
 
     @Test
-    void create_shouldCallAddStockOnce() throws Exception {
+    void create_shouldCallAddStockHandlerOnce() throws Exception {
         CreateInventoryRequest request = new CreateInventoryRequest("wh-2", "prod-2", 10);
         InventoryResponse response = new InventoryResponse(UUID.randomUUID().toString(), "prod-2", "wh-2", 10);
 
-        when(inventoryService.addStock(request)).thenReturn(response);
+        when(addStockHandler.handle(any(AddStockCommand.class))).thenReturn(response);
 
         mockMvc.perform(post("/inventory")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(inventoryService, times(1)).addStock(request);
+        verify(addStockHandler, times(1)).handle(any(AddStockCommand.class));
     }
 }
