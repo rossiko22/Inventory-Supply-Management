@@ -519,6 +519,9 @@ jobs:
 
       - name: Start backend stack
         run: docker compose up -d
+        env:
+          DB_USER: administrator
+          DB_PASSWORD: ci-test-password
 
       - name: Wait for mobile-gateway to be healthy
         run: |
@@ -550,3 +553,6 @@ jobs:
       - name: Tear down stack
         if: always()
         run: docker compose down -v
+        env:
+          DB_USER: administrator
+          DB_PASSWORD: ci-test-password

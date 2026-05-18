@@ -10,7 +10,8 @@ function setupTestBed() {
     providers: [
       provideHttpClient(),
       provideHttpClientTesting(),
-      provideRouter([]),
+      // Register `/login` so logout()'s router.navigate doesn't reject with NG04002.
+      provideRouter([{ path: 'login', children: [] }]),
     ],
   });
 }
