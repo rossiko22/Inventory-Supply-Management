@@ -32,13 +32,8 @@ jobs:
 
       - name: Build Docker image
         working-directory: services/auth-service
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest .
+        run: docker build -t inventory/auth-service:latest .
 
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
 
   build-company-microservice:
     runs-on: ubuntu-latest
@@ -62,13 +57,8 @@ jobs:
 
       - name: Build Docker image
         working-directory: services/company-service
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/company-service:latest .
+        run: docker build -t inventory/company-service:latest .
 
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/company-service:latest
 
   build-warehouse-microservice:
     runs-on: ubuntu-latest
@@ -92,13 +82,8 @@ jobs:
 
       - name: Build Docker image
         working-directory: services/warehouse-service
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/warehouse-service:latest .
+        run: docker build -t inventory/warehouse-service:latest .
 
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/warehouse-service:latest
 
   build-inventory-microservice:
     runs-on: ubuntu-latest
@@ -122,13 +107,8 @@ jobs:
 
       - name: Build Docker image
         working-directory: services/inventory-service
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/inventory-service:latest .
+        run: docker build -t inventory/inventory-service:latest .
 
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/inventory-service:latest
 
   # ── .NET services ────────────────────────────────────────────────────────
   build-fleet-microservice:
@@ -155,13 +135,8 @@ jobs:
 
       - name: Build Docker image
         working-directory: services/fleet-service
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/fleet-service:latest .
+        run: docker build -t inventory/fleet-service:latest .
 
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/fleet-service:latest
 
   build-product-microservice:
     runs-on: ubuntu-latest
@@ -187,13 +162,8 @@ jobs:
 
       - name: Build Docker image
         working-directory: services/product-service
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/product-service:latest .
+        run: docker build -t inventory/product-service:latest .
 
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/product-service:latest
 
   build-order-microservice:
     runs-on: ubuntu-latest
@@ -219,13 +189,8 @@ jobs:
 
       - name: Build Docker image
         working-directory: services/order-service
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/order-service:latest .
+        run: docker build -t inventory/order-service:latest .
 
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/order-service:latest
 
   # ── Node.js services ─────────────────────────────────────────────────────
   build-notification-microservice:
@@ -254,13 +219,8 @@ jobs:
 
       - name: Build Docker image
         working-directory: services/notification-service
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/notification-service:latest .
+        run: docker build -t inventory/notification-service:latest .
 
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/notification-service:latest
 
   build-ai-microservice:
     runs-on: ubuntu-latest
@@ -288,13 +248,8 @@ jobs:
 
       - name: Build Docker image
         working-directory: services/ai-service
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ai-service:latest .
+        run: docker build -t inventory/ai-service:latest .
 
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/ai-service:latest
 
   # ── Mobile Gateway (Express/TypeScript) ──────────────────────────────────
   build-mobile-gateway:
@@ -323,13 +278,8 @@ jobs:
 
       - name: Build Docker image
         working-directory: mobile-gateway
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mobile-gateway:latest .
+        run: docker build -t inventory/mobile-gateway:latest .
 
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mobile-gateway:latest
 
   # ── Angular web-app ──────────────────────────────────────────────────────
   test-web-app:
@@ -377,12 +327,7 @@ jobs:
         run: npm run build
       - name: Build Docker image
         working-directory: micro-frontends/shell
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mf-shell:latest .
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mf-shell:latest
+        run: docker build -t inventory/mf-shell:latest .
 
   build-mf-auth:
     runs-on: ubuntu-latest
@@ -404,12 +349,7 @@ jobs:
         run: npm run build
       - name: Build Docker image
         working-directory: micro-frontends/auth-mf
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mf-auth:latest .
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mf-auth:latest
+        run: docker build -t inventory/mf-auth:latest .
 
   build-mf-warehouses:
     runs-on: ubuntu-latest
@@ -431,12 +371,7 @@ jobs:
         run: npm run build
       - name: Build Docker image
         working-directory: micro-frontends/warehouses-mf
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mf-warehouses:latest .
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mf-warehouses:latest
+        run: docker build -t inventory/mf-warehouses:latest .
 
   build-mf-inventory:
     runs-on: ubuntu-latest
@@ -458,12 +393,7 @@ jobs:
         run: npm run build
       - name: Build Docker image
         working-directory: micro-frontends/inventory-mf
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mf-inventory:latest .
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mf-inventory:latest
+        run: docker build -t inventory/mf-inventory:latest .
 
   build-mf-orders:
     runs-on: ubuntu-latest
@@ -485,12 +415,7 @@ jobs:
         run: npm run build
       - name: Build Docker image
         working-directory: micro-frontends/orders-mf
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mf-orders:latest .
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mf-orders:latest
+        run: docker build -t inventory/mf-orders:latest .
 
   build-mf-companies:
     runs-on: ubuntu-latest
@@ -512,12 +437,7 @@ jobs:
         run: npm run build
       - name: Build Docker image
         working-directory: micro-frontends/companies-mf
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mf-companies:latest .
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mf-companies:latest
+        run: docker build -t inventory/mf-companies:latest .
 
   build-mf-fleet:
     runs-on: ubuntu-latest
@@ -539,12 +459,7 @@ jobs:
         run: npm run build
       - name: Build Docker image
         working-directory: micro-frontends/fleet-mf
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mf-fleet:latest .
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mf-fleet:latest
+        run: docker build -t inventory/mf-fleet:latest .
 
   build-mf-products:
     runs-on: ubuntu-latest
@@ -566,12 +481,7 @@ jobs:
         run: npm run build
       - name: Build Docker image
         working-directory: micro-frontends/products-mf
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mf-products:latest .
-      - name: Push to DockerHub
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: |
-          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/mf-products:latest
+        run: docker build -t inventory/mf-products:latest .
 
   # ── End-to-end (Playwright) ──────────────────────────────────────────────
   # Skipped on PRs because it starts the full compose stack — slow + flaky on
@@ -609,8 +519,6 @@ jobs:
 
       - name: Start backend stack
         run: docker compose up -d
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
 
       - name: Wait for mobile-gateway to be healthy
         run: |
