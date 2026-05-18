@@ -13,6 +13,11 @@ public class InventoryJpaEntity {
     private String productId;
     private String warehouseId;
     private int quantity;
+    // Nullable so existing rows pre-Gap-13 migrate seamlessly.
+    @Column(nullable = true)
+    private Integer minQuantity;
+    @Column(nullable = true)
+    private Integer maxQuantity;
 
     private LocalDateTime createdAt;
     private LocalDateTime lastModified;
@@ -29,12 +34,18 @@ public class InventoryJpaEntity {
         this.lastModified = LocalDateTime.now();
     }
 
-    // constructor (important!)
     public InventoryJpaEntity(String id, String productId, String warehouseId, int quantity) {
+        this(id, productId, warehouseId, quantity, null, null);
+    }
+
+    public InventoryJpaEntity(String id, String productId, String warehouseId, int quantity,
+                               Integer minQuantity, Integer maxQuantity) {
         this.id = id;
         this.productId = productId;
         this.warehouseId = warehouseId;
         this.quantity = quantity;
+        this.minQuantity = minQuantity;
+        this.maxQuantity = maxQuantity;
     }
 
     public InventoryJpaEntity() {} // JPA needs this
@@ -53,6 +64,22 @@ public class InventoryJpaEntity {
 
     public int getQuantity() {
         return quantity;
+    }
+
+    public Integer getMinQuantity() {
+        return minQuantity;
+    }
+
+    public Integer getMaxQuantity() {
+        return maxQuantity;
+    }
+
+    public void setMinQuantity(Integer minQuantity) {
+        this.minQuantity = minQuantity;
+    }
+
+    public void setMaxQuantity(Integer maxQuantity) {
+        this.maxQuantity = maxQuantity;
     }
 
     public LocalDateTime getCreatedAt() {

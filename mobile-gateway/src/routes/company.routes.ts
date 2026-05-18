@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { config } from '../config';
 import { authMiddleware, requireManager } from '../middleware/auth.middleware';
 
@@ -19,6 +19,9 @@ export function createCompanyRouter(): Router {
   const proxy = createProxyMiddleware({
     target: config.services.company,
     changeOrigin: true,
+    // Re-prepend the `/companies` mount path Express strips before this router.
+    pathRewrite: (path) => `/companies${path === '/' ? '' : path}`,
+    on: { proxyReq: fixRequestBody },
   });
 
   router.use(authMiddleware);

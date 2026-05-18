@@ -91,3 +91,8 @@ web-app/**/node_modules/
 # Test output
 coverage/
 test-output/
+
+############################################
+# SCRIPTS
+############################################
+*.sh

@@ -22,5 +22,19 @@ export async function initDb(): Promise<void> {
       created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
     );
   `);
-  console.log('[DB] notifications table ready');
+  // Push-notification scaffold: one row per (user, device token, platform).
+  // PRIMARY KEY on token alone — if the same token re-registers we just
+  // upsert the (user_id, platform, last_seen) triple.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS device_tokens (
+      token       TEXT         PRIMARY KEY,
+      user_id     VARCHAR(100) NOT NULL,
+      user_email  VARCHAR(255) NOT NULL,
+      platform    VARCHAR(20)  NOT NULL,
+      created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+      last_seen   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS device_tokens_user_idx ON device_tokens(user_id);
+  `);
+  console.log('[DB] notifications + device_tokens tables ready');
 }

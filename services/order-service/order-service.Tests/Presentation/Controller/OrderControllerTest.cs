@@ -65,7 +65,7 @@ public class OrdersControllerTest
  
         _serviceMock.Setup(s => s.GetOrdersAsync()).ReturnsAsync(orders);
  
-        var result = await _controller.GetOrdersAsync();
+        var result = await _controller.GetOrdersAsync(null);
  
         var ok = Assert.IsType<OkObjectResult>(result);
         var body = Assert.IsType<List<OrderResponse>>(ok.Value);

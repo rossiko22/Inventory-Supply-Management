@@ -1,9 +1,9 @@
 using fleet_service.Application.DTOs;
 using fleet_service.Application.Mappers;
 using fleet_service.Application.Ports.In;
+using fleet_service.Application.Ports.Out;
 using fleet_service.Domain.Entities;
 using fleet_service.Domain.Exceptions;
-using fleet_service.Infrastructure.Repositories;
 
 namespace fleet_service.Application.Services;
 
@@ -12,12 +12,13 @@ public class DriverService :
     IDeleteDriverUseCase,
     IGetAllDriversUseCase,
     IGetDriverUseCase,
+    IGetDriverByEmailUseCase,
     IUpdateDriverUseCase
 {
-    private readonly DriverRepositoryAdapter _driverRepository;
-    private readonly VehicleRepositoryAdapter _vehicleRepository;
+    private readonly IDriverRepositoryPort _driverRepository;
+    private readonly IVehicleRepositoryPort _vehicleRepository;
 
-    public DriverService(VehicleRepositoryAdapter vehicleRepository, DriverRepositoryAdapter driverRepository)
+    public DriverService(IVehicleRepositoryPort vehicleRepository, IDriverRepositoryPort driverRepository)
     {
         _driverRepository = driverRepository;
         _vehicleRepository = vehicleRepository;
@@ -95,6 +96,13 @@ public class DriverService :
 
         return DriverMapper.ToResponse(driver);
     }
+
+    public async Task<DriverResponse?> GetDriverByEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email)) return null;
+        var driver = await _driverRepository.GetByEmail(email);
+        return driver == null ? null : DriverMapper.ToResponse(driver);
+    }
     
     public async Task DeleteById(Guid id)
     {
@@ -104,5 +112,7 @@ public class DriverService :
         {
             throw new DriverNotFoundException(id);
         }
+
+        await _driverRepository.DeleteById(id);
     }
 }

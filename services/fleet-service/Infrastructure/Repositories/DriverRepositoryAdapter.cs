@@ -62,8 +62,21 @@ public class DriverRepositoryAdapter : IDriverRepositoryPort
         {
             return null;
         }
-        
+
         return DriverMapper.ToDomain(entity);
+    }
+
+    public async Task<Driver?> GetByEmail(string email)
+    {
+        var normalized = email.Trim();
+        if (string.IsNullOrEmpty(normalized)) return null;
+
+        // Case-insensitive match via lowered comparison so JWT-supplied email
+        // case doesn't matter.
+        var entity = await _context.Drivers
+            .FirstOrDefaultAsync(d => d.Email.ToLower() == normalized.ToLower());
+
+        return entity == null ? null : DriverMapper.ToDomain(entity);
     }
 
     public async Task<Driver?> DeleteById(Guid id)

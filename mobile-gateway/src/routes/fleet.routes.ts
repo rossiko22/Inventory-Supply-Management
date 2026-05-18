@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { config } from '../config';
 import { authMiddleware, requireManager } from '../middleware/auth.middleware';
 
@@ -25,12 +25,15 @@ export function createFleetRouter(): Router {
   const proxy = createProxyMiddleware({
     target: config.services.fleet,
     changeOrigin: true,
+    // Re-stream body consumed by express.json() upstream.
+    on: { proxyReq: fixRequestBody },
   });
 
   router.use(authMiddleware);
 
   // Drivers
   router.get('/drivers',            proxy);
+  router.get('/drivers/me',         proxy);  // driver self-view — must precede /:id
   router.get('/drivers/:id',        proxy);
   router.post('/drivers',           requireManager, proxy);
   router.put('/drivers/:id',        requireManager, proxy);

@@ -24,7 +24,12 @@ public class OrderRepository : IOrderRepository
     {
         return await _dbContext.Orders.ToListAsync();
     }
-    
+
+    public async Task<List<Order>> GetByDriverIdAsync(Guid driverId)
+    {
+        return await _dbContext.Orders.Where(o => o.DriverId == driverId).ToListAsync();
+    }
+
     public async Task<Order?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Orders.FindAsync(id);

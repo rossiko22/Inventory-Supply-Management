@@ -62,6 +62,13 @@ public class ProductRepositoryAdapter: IProductRepositoryPort
         return ProductMapper.ToDomain(product);
     }
 
+    public async Task<Product?> GetBySku(string sku)
+    {
+        // Case-sensitive exact match. SKU is treated as a business identifier.
+        var entity = await _context.Products.FirstOrDefaultAsync(p => p.SKU == sku);
+        return entity == null ? null : ProductMapper.ToDomain(entity);
+    }
+
     public async Task<Product?> DeleteById(Guid id)
     {
         var product = await _context.Products.FindAsync(id);

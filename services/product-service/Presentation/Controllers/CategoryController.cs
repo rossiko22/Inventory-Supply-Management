@@ -65,7 +65,7 @@ public class CategoryController: ControllerBase
     {
         try
         {
-            var updatedCategory = _updateCategory.UpdateCategory(id, request);
+            var updatedCategory = await _updateCategory.UpdateCategory(id, request);
             return Ok(updatedCategory);
         }
         catch (CategoryNotFoundException)

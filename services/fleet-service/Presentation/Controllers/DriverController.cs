@@ -13,22 +13,43 @@ public class DriverController: ControllerBase
     private readonly IUpdateDriverUseCase _updateDriver;
     private readonly IGetAllDriversUseCase _getAllDrivers;
     private readonly IGetDriverUseCase _getDriver;
+    private readonly IGetDriverByEmailUseCase _getDriverByEmail;
     private readonly IDeleteDriverUseCase _deleteDriver;
 
-    public DriverController(ICreateDriverUseCase createDriver, IUpdateDriverUseCase updateDriverUse, IGetAllDriversUseCase getAllDrivers, IGetDriverUseCase getDriver, IDeleteDriverUseCase deleteDriver)
+    public DriverController(ICreateDriverUseCase createDriver, IUpdateDriverUseCase updateDriverUse, IGetAllDriversUseCase getAllDrivers, IGetDriverUseCase getDriver, IGetDriverByEmailUseCase getDriverByEmail, IDeleteDriverUseCase deleteDriver)
     {
         _createDriver = createDriver;
         _updateDriver = updateDriverUse;
         _getAllDrivers = getAllDrivers;
         _getDriver = getDriver;
+        _getDriverByEmail = getDriverByEmail;
         _deleteDriver = deleteDriver;
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var drivers = await _getAllDrivers.GetAllDrivers();
         return Ok(drivers);
+    }
+
+    // GET /drivers/me — resolves the driver whose email matches the
+    // X-User-Email header forwarded by mobile-gateway. Used by DRIVER role
+    // to fetch their own record. Must precede the /:id route.
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMe()
+    {
+        var email = Request.Headers["X-User-Email"].ToString();
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return BadRequest(new { error = "Bad Request", message = "X-User-Email header missing." });
+        }
+        var driver = await _getDriverByEmail.GetDriverByEmail(email);
+        if (driver == null)
+        {
+            return NotFound(new { error = "Not Found", message = $"No driver registered for {email}." });
+        }
+        return Ok(driver);
     }
 
     [HttpGet("{id:guid}")]

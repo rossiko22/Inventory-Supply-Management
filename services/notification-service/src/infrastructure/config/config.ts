@@ -6,7 +6,13 @@ export const config = {
     port: parseInt(process.env['PORT'] ?? '8080', 10),
   },
   ws: {
-    port: parseInt(process.env['WS_PORT'] ?? '9091', 10),
+    port:        parseInt(process.env['WS_PORT'] ?? '9091', 10),
+    // Same secret as auth-service uses to sign tokens. Raw UTF-8 bytes —
+    // the issuer (auth-service JwtService.java) uses Keys.hmacShaKeyFor(secret.getBytes()).
+    jwtSecret:   process.env['JWT_SECRET'] ?? 'ewzqAN2z1bq7yYFcN3/KId4wbohavFXxHE7nnr82lZE=',
+    // When true (default), WS connections without a valid JWT are rejected.
+    // Disable only for local development without auth wiring.
+    requireAuth: (process.env['WS_REQUIRE_AUTH'] ?? 'true') !== 'false',
   },
   kafka: {
     brokers:  (process.env['KAFKA_BROKERS'] ?? 'localhost:9092').split(','),

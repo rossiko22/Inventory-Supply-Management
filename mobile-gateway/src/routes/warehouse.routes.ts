@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { config } from '../config';
 import { authMiddleware, requireManager } from '../middleware/auth.middleware';
 
@@ -20,8 +20,16 @@ export function createWarehouseRouter(): Router {
   const proxy = createProxyMiddleware({
     target: config.services.warehouse,
     changeOrigin: true,
-    // Remap /warehouses/summary → /warehouses/total
-    pathRewrite: { '^/warehouses/summary': '/warehouses/total' },
+    // Express strips the `/warehouses` mount path; re-prepend it on forward
+    // and special-case /summary → /warehouses/total in the same pass.
+    pathRewrite: (path) => {
+      if (path === '/summary' || path.startsWith('/summary?')) {
+        return `/warehouses/total${path.slice('/summary'.length)}`;
+      }
+      // Spring rejects trailing slash on `/warehouses/` → 404, so collapse it.
+      return `/warehouses${path === '/' ? '' : path}`;
+    },
+    on: { proxyReq: fixRequestBody },
   });
 
   router.use(authMiddleware);

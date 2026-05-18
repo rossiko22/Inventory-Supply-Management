@@ -1,0 +1,10 @@
+# Override the dev profile DB so tests don't try to hit a real Postgres
+spring:
+  datasource:
+    url: jdbc:h2:mem:companytestdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop

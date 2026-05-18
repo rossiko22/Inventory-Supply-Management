@@ -124,13 +124,13 @@ public class OrderService : IOrderService
         };
     }
 
-    public async Task<List<OrderResponse>> GetOrdersAsync()
+    public async Task<OrderResponse?> GetOrderByIdAsync(Guid orderId)
     {
-        _logger.LogInformation("Fetching all orders");
-        var orders = await _repository.GetAllAsync();
-        _logger.LogDebug("Retrieved {Count} orders", orders.Count);
+        _logger.LogInformation("Fetching order by id={OrderId}", orderId);
+        var o = await _repository.GetByIdAsync(orderId);
+        if (o == null) return null;
 
-        return orders.Select(o => new OrderResponse
+        return new OrderResponse
         {
             Id = o.Id,
             ProductId = o.ProductId,
@@ -142,6 +142,36 @@ public class OrderService : IOrderService
             DeliveryDate = o.DeliveryDate,
             CreatedAt = o.CreatedAt,
             LastModified = o.LastModified
-        }).ToList();
+        };
     }
+
+    public async Task<List<OrderResponse>> GetOrdersAsync()
+    {
+        _logger.LogInformation("Fetching all orders");
+        var orders = await _repository.GetAllAsync();
+        _logger.LogDebug("Retrieved {Count} orders", orders.Count);
+
+        return orders.Select(MapToResponse).ToList();
+    }
+
+    public async Task<List<OrderResponse>> GetOrdersByDriverAsync(Guid driverId)
+    {
+        _logger.LogInformation("Fetching orders for driverId={DriverId}", driverId);
+        var orders = await _repository.GetByDriverIdAsync(driverId);
+        return orders.Select(MapToResponse).ToList();
+    }
+
+    private static OrderResponse MapToResponse(Order o) => new OrderResponse
+    {
+        Id = o.Id,
+        ProductId = o.ProductId,
+        CompanyId = o.CompanyId,
+        WarehouseId = o.WarehouseId,
+        DriverId = o.DriverId,
+        Quantity = o.Quantity,
+        Status = o.Status,
+        DeliveryDate = o.DeliveryDate,
+        CreatedAt = o.CreatedAt,
+        LastModified = o.LastModified
+    };
 }

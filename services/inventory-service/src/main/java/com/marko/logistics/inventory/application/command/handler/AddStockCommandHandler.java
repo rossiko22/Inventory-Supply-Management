@@ -29,8 +29,16 @@ public class AddStockCommandHandler {
             inventory.increase(command.quantity());
             log.debug("Existing inventory found (id={}), increased by {}", inventory.getId(), command.quantity());
         } else {
-            inventory = Inventory.create(command.productId(), command.warehouseId(), command.quantity());
+            inventory = Inventory.create(
+                    command.productId(), command.warehouseId(), command.quantity(),
+                    command.minQuantity(), command.maxQuantity());
             log.debug("No existing inventory found — creating new entry");
+        }
+
+        // Gap 13: any non-null thresholds in the command win (used to set or
+        // update thresholds without changing how quantity is computed).
+        if (command.minQuantity() != null || command.maxQuantity() != null) {
+            inventory.setThresholds(command.minQuantity(), command.maxQuantity());
         }
 
         inventoryRepository.save(inventory);

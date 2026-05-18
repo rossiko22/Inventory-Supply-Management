@@ -27,7 +27,7 @@ public class InventoryServiceTest {
 
     @Test
     void addStock_createsNewInventory_whenNoneExists() {
-        CreateInventoryRequest request = new CreateInventoryRequest("wh-1", "prod-1", 10);
+        CreateInventoryRequest request = new CreateInventoryRequest("wh-1", "prod-1", 10, null, null);
 
         when(repository.findByProductIdAndWarehouseId("prod-1", "wh-1")).thenReturn(Optional.empty());
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -43,7 +43,7 @@ public class InventoryServiceTest {
     @Test
     void addStock_increasesQuantity_whenInventoryExists() {
         Inventory existing = Inventory.create("prod-1", "wh-1", 5);
-        CreateInventoryRequest request = new CreateInventoryRequest("wh-1", "prod-1", 10);
+        CreateInventoryRequest request = new CreateInventoryRequest("wh-1", "prod-1", 10, null, null);
 
         when(repository.findByProductIdAndWarehouseId("prod-1", "wh-1")).thenReturn(Optional.of(existing));
         when(repository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -83,7 +83,7 @@ public class InventoryServiceTest {
     @Test
     void addStock_throwsException_whenQuantityIsZero() {
         Inventory existing = Inventory.create("prod-1", "wh-1", 5);
-        CreateInventoryRequest request = new CreateInventoryRequest("wh-1", "prod-1", 0);
+        CreateInventoryRequest request = new CreateInventoryRequest("wh-1", "prod-1", 0, null, null);
 
         when(repository.findByProductIdAndWarehouseId("prod-1", "wh-1")).thenReturn(Optional.of(existing));
 

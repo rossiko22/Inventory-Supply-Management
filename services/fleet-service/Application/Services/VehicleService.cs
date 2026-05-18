@@ -76,5 +76,7 @@ public class VehicleService :
         {
             throw new VehicleNotFoundException(id);
         }
+
+        await _repository.Delete(id);
     }
 }

@@ -198,6 +198,26 @@ services:
       INVENTORY_SERVICE_URL:    http://localhost:8086
       ORDER_SERVICE_URL:        http://localhost:8087
       NOTIFICATION_SERVICE_URL: http://localhost:8088
+      AI_SERVICE_URL:           http://localhost:8089
+
+  # ──────────────────────────────────────────
+  # AI analysis service (Azure OpenAI wrapper)
+  # ──────────────────────────────────────────
+  ai-service:
+    build:
+      context: ./services/ai-service
+    container_name: ai-service
+    network_mode: host
+    environment:
+      PORT:                     "8089"
+      INVENTORY_SERVICE_URL:    http://localhost:8086
+      WAREHOUSE_SERVICE_URL:    http://localhost:8084
+      PRODUCT_SERVICE_URL:      http://localhost:8085
+      # === Azure OpenAI — leave blank to get templated summaries (no LLM call) ===
+      AZURE_OPENAI_ENDPOINT:    "${AZURE_OPENAI_ENDPOINT:-}"
+      AZURE_OPENAI_API_KEY:     "${AZURE_OPENAI_API_KEY:-}"
+      AZURE_OPENAI_DEPLOYMENT:  "${AZURE_OPENAI_DEPLOYMENT:-}"
+      AZURE_OPENAI_API_VERSION: "${AZURE_OPENAI_API_VERSION:-2024-08-01-preview}"
 
   # ──────────────────────────────────────────
   # Micro-frontends

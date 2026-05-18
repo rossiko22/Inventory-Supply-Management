@@ -46,8 +46,8 @@ public class InventoryControllerTest {
 
     @Test
     void getAll_shouldReturnListOfInventory() throws Exception {
-        InventoryResponse r1 = new InventoryResponse(UUID.randomUUID().toString(), "prod-1", "wh-1", 10);
-        InventoryResponse r2 = new InventoryResponse(UUID.randomUUID().toString(), "prod-2", "wh-1", 20);
+        InventoryResponse r1 = new InventoryResponse(UUID.randomUUID().toString(), "prod-1", "wh-1", 10, null, null);
+        InventoryResponse r2 = new InventoryResponse(UUID.randomUUID().toString(), "prod-2", "wh-1", 20, null, null);
 
         when(getAllHandler.handle(any(GetAllInventoryQuery.class))).thenReturn(List.of(r1, r2));
 
@@ -61,7 +61,7 @@ public class InventoryControllerTest {
     @Test
     void getById_shouldReturnInventoryForWarehouse() throws Exception {
         String warehouseId = "wh-42";
-        InventoryResponse r = new InventoryResponse(UUID.randomUUID().toString(), "prod-1", warehouseId, 5);
+        InventoryResponse r = new InventoryResponse(UUID.randomUUID().toString(), "prod-1", warehouseId, 5, null, null);
 
         when(getByWarehouseHandler.handle(any(GetInventoryByWarehouseQuery.class))).thenReturn(List.of(r));
 
@@ -73,8 +73,8 @@ public class InventoryControllerTest {
 
     @Test
     void create_shouldReturnCreatedInventoryResponse() throws Exception {
-        CreateInventoryRequest request = new CreateInventoryRequest("wh-1", "prod-1", 30);
-        InventoryResponse response = new InventoryResponse(UUID.randomUUID().toString(), "prod-1", "wh-1", 30);
+        CreateInventoryRequest request = new CreateInventoryRequest("wh-1", "prod-1", 30, null, null);
+        InventoryResponse response = new InventoryResponse(UUID.randomUUID().toString(), "prod-1", "wh-1", 30, null, null);
 
         when(addStockHandler.handle(any(AddStockCommand.class))).thenReturn(response);
 
@@ -89,8 +89,8 @@ public class InventoryControllerTest {
 
     @Test
     void create_shouldCallAddStockHandlerOnce() throws Exception {
-        CreateInventoryRequest request = new CreateInventoryRequest("wh-2", "prod-2", 10);
-        InventoryResponse response = new InventoryResponse(UUID.randomUUID().toString(), "prod-2", "wh-2", 10);
+        CreateInventoryRequest request = new CreateInventoryRequest("wh-2", "prod-2", 10, null, null);
+        InventoryResponse response = new InventoryResponse(UUID.randomUUID().toString(), "prod-2", "wh-2", 10, null, null);
 
         when(addStockHandler.handle(any(AddStockCommand.class))).thenReturn(response);
 

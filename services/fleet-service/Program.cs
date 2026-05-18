@@ -34,10 +34,6 @@ public class Program
         // Repositories (Ports -> Adapters)
         builder.Services.AddScoped<IVehicleRepositoryPort, VehicleRepositoryAdapter>();
         builder.Services.AddScoped<IDriverRepositoryPort, DriverRepositoryAdapter>();
-
-        // Also register the concrete adapters if constructors need them
-        builder.Services.AddScoped<VehicleRepositoryAdapter>();
-        builder.Services.AddScoped<DriverRepositoryAdapter>();
         
         // Driver Service
         builder.Services.AddScoped<DriverService>();
@@ -48,9 +44,11 @@ public class Program
             sp.GetRequiredService<DriverService>());
         builder.Services.AddScoped<IGetAllDriversUseCase>(sp => 
             sp.GetRequiredService<DriverService>());
-        builder.Services.AddScoped<IGetDriverUseCase>(sp => 
+        builder.Services.AddScoped<IGetDriverUseCase>(sp =>
             sp.GetRequiredService<DriverService>());
-        builder.Services.AddScoped<IDeleteDriverUseCase>(sp => 
+        builder.Services.AddScoped<IGetDriverByEmailUseCase>(sp =>
+            sp.GetRequiredService<DriverService>());
+        builder.Services.AddScoped<IDeleteDriverUseCase>(sp =>
             sp.GetRequiredService<DriverService>());
         
         // Vehicle Service

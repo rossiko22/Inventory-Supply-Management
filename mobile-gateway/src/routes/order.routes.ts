@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { config } from '../config';
 import { authMiddleware } from '../middleware/auth.middleware';
 
@@ -21,14 +21,18 @@ export function createOrderRouter(): Router {
 
   router.use(authMiddleware);
 
-  // List & create — direct proxy
+  // List & create — direct proxy.
+  // Express strips the `/orders` mount path; re-prepend it on forward.
   const listCreateProxy = createProxyMiddleware({
     target: config.services.order,
     changeOrigin: true,
+    pathRewrite: (path) => `/orders${path === '/' ? '' : path}`,
+    on: { proxyReq: fixRequestBody },
   });
 
-  router.get('/',  listCreateProxy);
-  router.post('/', listCreateProxy);
+  router.get('/',     listCreateProxy);
+  router.get('/:id',  listCreateProxy);  // single order — order-service GET /orders/{id}
+  router.post('/',    listCreateProxy);
 
   // Mobile-style status update: PUT /orders/:id/status { status: number }
   // Rewrites to downstream: PUT /orders/status { orderId: id, status }
@@ -60,10 +64,14 @@ export function createOrderRouter(): Router {
     }
   });
 
-  // Document upload — multipart proxy
+  // Document upload — multipart proxy. Same prefix-restore as listCreateProxy.
+  // Multipart body streams as-is, but the fix is harmless if the content-type
+  // is multipart (fixRequestBody only re-streams for JSON / urlencoded).
   const uploadProxy = createProxyMiddleware({
     target: config.services.order,
     changeOrigin: true,
+    pathRewrite: (path) => `/orders${path}`,
+    on: { proxyReq: fixRequestBody },
   });
 
   router.post('/upload-document', uploadProxy);

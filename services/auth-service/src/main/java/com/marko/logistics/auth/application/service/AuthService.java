@@ -64,7 +64,9 @@ public class AuthService implements
 
         Role role = switch (request.role().toLowerCase()){
             case "manager" -> Role.MANAGER;
-            case "worker" -> Role.WORKER;
+            case "worker"  -> Role.WORKER;
+            case "admin"   -> Role.ADMIN;
+            case "driver"  -> Role.DRIVER;
             default -> {
                 log.warn("Register failed - invalid role: {}", request.role());
                 yield Role.WORKER;
@@ -88,6 +90,21 @@ public class AuthService implements
         User user = repository.findByEmail(request.email())
                 .orElseThrow(() -> new UserNotFoundException(request.email()));
 
+        return jwtService.generateToken(user);
+    }
+
+    public String generateRefreshToken(LoginRequest request){
+        User user = repository.findByEmail(request.email())
+                .orElseThrow(() -> new UserNotFoundException(request.email()));
+
+        return jwtService.generateRefreshToken(user);
+    }
+
+    /** Exchange a valid refresh token for a fresh access token. */
+    public String refreshAccessToken(String refreshToken){
+        String email = jwtService.validateRefreshAndExtractEmail(refreshToken);
+        User user = repository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
         return jwtService.generateToken(user);
     }
 }

@@ -41,13 +41,38 @@ public class AuthController {
             @Valid @RequestBody LoginRequest request,
             HttpServletResponse response
             ){
-        String token = authService.generateToken(request);
+        String accessToken  = authService.generateToken(request);
+        String refreshToken = authService.generateRefreshToken(request);
         AuthResponse userInfo = loginUseCase.login(request);
 
-        response.addHeader(HttpHeaders.SET_COOKIE, buildSessionCookie(token).toString());
-        response.setHeader("X-Auth-Token", token);
+        response.addHeader(HttpHeaders.SET_COOKIE, buildSessionCookie(accessToken).toString());
+        response.setHeader("X-Auth-Token",    accessToken);
+        response.setHeader("X-Refresh-Token", refreshToken);
 
         return ResponseEntity.ok(userInfo);
+    }
+
+    /**
+     * Exchange a valid refresh token for a new access token.
+     * Body shape: { "refreshToken": "<jwt>" }.
+     * 200 + { "accessToken": "..." } on success; 401 on invalid/expired refresh.
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody java.util.Map<String, String> body){
+        String refreshToken = body == null ? null : body.get("refreshToken");
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(java.util.Map.of("error", "Bad Request",
+                                           "message", "`refreshToken` is required"));
+        }
+        try {
+            String accessToken = authService.refreshAccessToken(refreshToken);
+            return ResponseEntity.ok(java.util.Map.of("accessToken", accessToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(java.util.Map.of("error", "Unauthorized",
+                                           "message", "Invalid or expired refresh token"));
+        }
     }
 
     @PostMapping("/register")

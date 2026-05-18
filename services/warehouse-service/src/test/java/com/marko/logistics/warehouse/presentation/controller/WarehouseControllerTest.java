@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -26,6 +27,8 @@ public class WarehouseControllerTest {
     @BeforeEach
     void setup() {
         warehouseService = mock(WarehouseService.class);
+        context = mock(RequestContext.class);
+        when(context.getUserRole(any())).thenReturn("MANAGER");
         mockMvc = MockMvcBuilders.standaloneSetup(new WarehouseController(warehouseService, context)).build();
         mapper = new ObjectMapper();
     }

@@ -7,6 +7,7 @@ public interface IDriverRepositoryPort
     Task<Driver> Save(Driver driver);
     Task<List<Driver>> GetAll();
     Task<Driver?> GetById(Guid id);
+    Task<Driver?> GetByEmail(string email);
     Task<Driver?> DeleteById(Guid id);
     //TODO Add Update
 }

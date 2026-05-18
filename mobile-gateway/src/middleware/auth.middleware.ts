@@ -2,10 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
 
+export type AppRole = 'MANAGER' | 'WORKER' | 'ADMIN' | 'DRIVER';
+
 export interface JwtPayload {
   userId: string;
   sub:    string;   // email
-  role:   'MANAGER' | 'WORKER';
+  role:   AppRole;
   iat:    number;
   exp:    number;
 }
@@ -40,9 +42,10 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
   const token = authHeader.slice(7); // strip "Bearer "
 
   try {
-    // The auth-service signs with a base64-decoded HMAC-SHA256 key
-    const secret = Buffer.from(config.jwt.secret, 'base64');
-    const payload = jwt.verify(token, secret) as JwtPayload;
+    // auth-service signs with the raw UTF-8 bytes of the secret string
+    // (Keys.hmacShaKeyFor(secret.getBytes()) — see JwtService.java line 24).
+    // Use the same encoding here, or every verify will fail with "invalid signature".
+    const payload = jwt.verify(token, config.jwt.secret) as JwtPayload;
     req.user = payload;
 
     // Forward user context as headers so downstream services can trust them
@@ -50,8 +53,11 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
     req.headers['x-user-email'] = payload.sub;
     req.headers['x-user-role']  = payload.role;
 
-    // Strip the raw Authorization header — downstream services don't need it
-    delete req.headers['authorization'];
+    // Leave the Authorization header intact. Multiple routers are mounted at `/`
+    // (productRouter, fleetRouter) and Express runs every router's middleware in
+    // order, so deleting the header here would 401 any sibling router that runs
+    // after this one finds no matching route. Downstream services ignore the
+    // header and trust X-User-* instead, so leaving it costs nothing.
 
     next();
   } catch (err) {
@@ -65,12 +71,25 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
   }
 }
 
-/** Optional — restrict a route to MANAGER role only */
+/** Restrict a route to MANAGER (or ADMIN, which is a strict superset). */
 export function requireManager(req: Request, res: Response, next: NextFunction): void {
-  if (req.user?.role !== 'MANAGER') {
+  const role = req.user?.role;
+  if (role !== 'MANAGER' && role !== 'ADMIN') {
     res.status(403).json({
       error: 'Forbidden',
-      message: 'This action requires MANAGER role',
+      message: 'This action requires MANAGER or ADMIN role',
+    });
+    return;
+  }
+  next();
+}
+
+/** Restrict a route to ADMIN only. */
+export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+  if (req.user?.role !== 'ADMIN') {
+    res.status(403).json({
+      error: 'Forbidden',
+      message: 'This action requires ADMIN role',
     });
     return;
   }

@@ -39,11 +39,6 @@ public class Program
         // Dependency injection for repositories (infrastructure layer)
         builder.Services.AddScoped<IProductRepositoryPort, ProductRepositoryAdapter>();
         builder.Services.AddScoped<ICategoryRepositoryPort, CategoryRepositoryAdapter>();
-
-        
-        // Also register the concrete adapters if constructors need them
-        builder.Services.AddScoped<ProductRepositoryAdapter>();
-        builder.Services.AddScoped<CategoryRepositoryAdapter>();
         
         // Dependency injection for services/use cases (application layer)
         // Product Service
@@ -52,6 +47,7 @@ public class Program
         builder.Services.AddScoped<IUpdateProductUseCase, ProductService>();
         builder.Services.AddScoped<IGetAllProductsUseCase, ProductService>();
         builder.Services.AddScoped<IGetProductUseCase, ProductService>();
+        builder.Services.AddScoped<IGetProductBySkuUseCase, ProductService>();
         builder.Services.AddScoped<IGetByCategoryUseCase, ProductService>();
         builder.Services.AddScoped<IDeleteProductUseCase, ProductService>();
 

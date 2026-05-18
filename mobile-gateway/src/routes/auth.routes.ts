@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { config } from '../config';
 
 /**
@@ -20,10 +20,17 @@ export function createAuthRouter(): Router {
   const proxy = createProxyMiddleware({
     target: config.services.auth,
     changeOrigin: true,
+    // Express strips the `/auth` mount path before passing the request to this
+    // router, so req.url at the proxy is `/login` etc. The downstream Spring
+    // controller is mapped at `/auth/...`, so we re-prepend the prefix here.
+    pathRewrite: (path) => `/auth${path}`,
     // The downstream auth-service returns an HttpOnly cookie + JSON body.
     // For mobile we want only the JSON body — strip the Set-Cookie header
     // so the mobile client must manage the token itself.
     on: {
+      // Re-stream the JSON body that express.json() already consumed upstream,
+      // otherwise POST/PUT requests forward with an empty body and time out.
+      proxyReq: fixRequestBody,
       proxyRes(proxyRes) {
         delete proxyRes.headers['set-cookie'];
       },

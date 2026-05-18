@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { config } from '../config';
 import { authMiddleware, requireManager } from '../middleware/auth.middleware';
 
@@ -22,11 +22,14 @@ export function createProductRouter(): Router {
   const proxy = createProxyMiddleware({
     target: config.services.product,
     changeOrigin: true,
+    // Re-stream body consumed by express.json() upstream.
+    on: { proxyReq: fixRequestBody },
   });
 
   router.use(authMiddleware);
 
   router.get('/products',           proxy);
+  router.get('/products/by-sku',    proxy);   // mobile barcode scanner — must precede /:id
   router.get('/products/:id',       proxy);
   router.post('/products',          requireManager, proxy);
   router.put('/products/:id',       requireManager, proxy);

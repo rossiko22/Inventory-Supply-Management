@@ -1,9 +1,9 @@
 using product_service.Application.DTOs;
 using product_service.Application.Mappers;
 using product_service.Application.Ports.In.Category;
+using product_service.Application.Ports.Out;
 using product_service.Domain.Entities;
 using product_service.Domain.Exceptions;
-using product_service.Infrastructure.Repositories;
 
 namespace product_service.Application.Services;
 
@@ -14,9 +14,9 @@ public class CategoryService:
     IGetCategoryUseCase,
     IDeleteCategoryUseCase
 {
-    private readonly CategoryRepositoryAdapter _categoryRepository;
+    private readonly ICategoryRepositoryPort _categoryRepository;
 
-    public CategoryService(CategoryRepositoryAdapter categoryRepository)
+    public CategoryService(ICategoryRepositoryPort categoryRepository)
     {
         _categoryRepository = categoryRepository;
     }

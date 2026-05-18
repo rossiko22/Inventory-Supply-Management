@@ -18,6 +18,9 @@ export const config = {
     inventory:    process.env['INVENTORY_SERVICE_URL']    ?? 'http://localhost:8086',
     order:        process.env['ORDER_SERVICE_URL']        ?? 'http://localhost:8087',
     notification: process.env['NOTIFICATION_SERVICE_URL'] ?? 'http://localhost:8088',
+    ai:           process.env['AI_SERVICE_URL']           ?? 'http://localhost:8089',
+    // WS upstream — port that notification-service binds for upgrades.
+    notificationWs: process.env['NOTIFICATION_WS_URL']    ?? 'ws://localhost:9091',
   },
 
   cors: {

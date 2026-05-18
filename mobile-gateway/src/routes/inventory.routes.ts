@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { config } from '../config';
 import { authMiddleware } from '../middleware/auth.middleware';
 
@@ -14,11 +14,13 @@ import { authMiddleware } from '../middleware/auth.middleware';
 export function createInventoryRouter(): Router {
   const router = Router();
 
-  // Rewrite /stock/* → /inventory/*
+  // Express strips the `/stock` mount path; forward as `/inventory` + path
+  // so downstream inventory-service sees /inventory, /inventory/:warehouseId, etc.
   const proxy = createProxyMiddleware({
     target: config.services.inventory,
     changeOrigin: true,
-    pathRewrite: { '^/stock': '/inventory' },
+    pathRewrite: (path) => `/inventory${path === '/' ? '' : path}`,
+    on: { proxyReq: fixRequestBody },
   });
 
   router.use(authMiddleware);

@@ -10,6 +10,7 @@ import { WsBroadcaster } from './infrastructure/websocket/ws-broadcaster';
 import { PgNotificationRepository } from './infrastructure/persistence/notification.repository.impl';
 import { ProcessKafkaEventUseCase } from './application/use-cases/process-kafka-event.usecase';
 import { createNotificationRouter } from './presentation/http/notification.router';
+import { createDeviceTokenRouter }  from './presentation/http/device-token.router';
 
 async function bootstrap(): Promise<void> {
   try {
@@ -48,6 +49,7 @@ async function bootstrap(): Promise<void> {
     const app = express();
     app.use(express.json());
     app.use('/notifications', createNotificationRouter(repository));
+    app.use('/notifications/device-tokens', createDeviceTokenRouter(pool));
     app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'notification-service' }));
 
     app.listen(8088, () => console.log(`[HTTP] listening on port 8088`));

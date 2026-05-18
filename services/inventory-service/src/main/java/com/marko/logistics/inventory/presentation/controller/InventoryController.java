@@ -42,7 +42,12 @@ public class InventoryController {
     @PostMapping
     public InventoryResponse createInventory(@RequestBody CreateInventoryRequest request) {
         return addStockHandler.handle(
-                new AddStockCommand(request.productId(), request.warehouseId(), request.quantity()));
+                new AddStockCommand(
+                        request.productId(),
+                        request.warehouseId(),
+                        request.quantity(),
+                        request.minQuantity(),
+                        request.maxQuantity()));
     }
 
     // ── Queries (read side) ───────────────────────────────────────────────

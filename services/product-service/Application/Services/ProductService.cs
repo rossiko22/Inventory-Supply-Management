@@ -1,9 +1,9 @@
 using product_service.Application.DTOs;
 using product_service.Application.Mappers;
 using product_service.Application.Ports.In.Product;
+using product_service.Application.Ports.Out;
 using product_service.Domain.Entities;
 using product_service.Domain.Exceptions;
-using product_service.Infrastructure.Repositories;
 
 namespace product_service.Application.Services;
 
@@ -12,13 +12,14 @@ public class ProductService :
     IUpdateProductUseCase,
     IGetAllProductsUseCase,
     IGetProductUseCase,
+    IGetProductBySkuUseCase,
     IGetByCategoryUseCase,
     IDeleteProductUseCase
 {
-    private readonly ProductRepositoryAdapter _productRepository;
-    private readonly CategoryRepositoryAdapter _categoryRepository;
+    private readonly IProductRepositoryPort _productRepository;
+    private readonly ICategoryRepositoryPort _categoryRepository;
 
-    public ProductService(ProductRepositoryAdapter productRepository, CategoryRepositoryAdapter categoryRepository)
+    public ProductService(IProductRepositoryPort productRepository, ICategoryRepositoryPort categoryRepository)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
@@ -93,8 +94,15 @@ public class ProductService :
         {
             throw new ProductNotFoundException(id);
         }
-        
+
         return ProductMapper.ToResponse(product);
+    }
+
+    public async Task<ProductResponse?> GetBySku(string sku)
+    {
+        if (string.IsNullOrWhiteSpace(sku)) return null;
+        var product = await _productRepository.GetBySku(sku.Trim());
+        return product == null ? null : ProductMapper.ToResponse(product);
     }
 
     public async Task DeleteById(Guid id)

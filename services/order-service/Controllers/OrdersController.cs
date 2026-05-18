@@ -26,9 +26,23 @@ public class OrdersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetOrdersAsync()
+    public async Task<IActionResult> GetOrdersAsync([FromQuery] Guid? driverId)
     {
+        // Optional scoping for DRIVER role. Mobile-gateway adds the filter
+        // automatically when the user's role is DRIVER (see fleet self-view).
+        if (driverId.HasValue)
+        {
+            return Ok(await _service.GetOrdersByDriverAsync(driverId.Value));
+        }
         return Ok(await _service.GetOrdersAsync());
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetOrderByIdAsync(Guid id)
+    {
+        var order = await _service.GetOrderByIdAsync(id);
+        if (order == null) return NotFound(new { error = "Not Found", message = $"Order {id} not found" });
+        return Ok(order);
     }
     
     [HttpPut("status")]

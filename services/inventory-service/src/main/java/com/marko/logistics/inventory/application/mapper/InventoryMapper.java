@@ -5,12 +5,14 @@ import com.marko.logistics.inventory.domain.model.Inventory;
 import com.marko.logistics.inventory.infrastructure.persistence.entity.InventoryJpaEntity;
 
 public class InventoryMapper {
-    public static InventoryResponse toResponse (Inventory i){
+    public static InventoryResponse toResponse(Inventory i) {
         return new InventoryResponse(
                 i.getId(),
                 i.getProductId(),
                 i.getWarehouseId(),
-                i.getQuantity()
+                i.getQuantity(),
+                i.getMinQuantity(),
+                i.getMaxQuantity()
         );
     }
 
@@ -19,7 +21,9 @@ public class InventoryMapper {
                 e.getId(),
                 e.getProductId(),
                 e.getWarehouseId(),
-                e.getQuantity()
+                e.getQuantity(),
+                e.getMinQuantity(),
+                e.getMaxQuantity()
         );
     }
 
@@ -28,7 +32,9 @@ public class InventoryMapper {
                 i.getId(),
                 i.getProductId(),
                 i.getWarehouseId(),
-                i.getQuantity()
+                i.getQuantity(),
+                i.getMinQuantity(),
+                i.getMaxQuantity()
         );
     }
 }
