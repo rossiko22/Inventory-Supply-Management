@@ -1,5 +1,43 @@
 # ai-service — Changelog
 
+## 2026-05-19 — Live Azure (o-series support)
+
+Three small bugs were preventing the live Azure call from succeeding —
+each surfaced only after a real API key was wired into `config.ts`:
+
+- **Empty-env override** — `process.env['AZURE_OPENAI_API_KEY'] ?? '...'`
+  let compose's `${VAR:-}` empty-string default win over the inline
+  fallback. Switched to `||` for the three Azure env reads so empty also
+  falls through.
+- **Stale API version** — default was `2024-08-01-preview`, but o-series
+  deployments (o1/o3/o4-mini/…) require **`2024-12-01-preview` or later**.
+  Bumped the default in both `src/config.ts` and `compose.yaml`.
+- **Reasoning-model request shape** — o-series:
+  - rejects `max_tokens` (use `max_completion_tokens`),
+  - only accepts `temperature: 1` (so omit the override entirely),
+  - spends most of the budget on `reasoning_tokens` (the 600-token
+    default was burned 100% on internal thinking with zero left for the
+    visible reply → empty content + `finish_reason=length`).
+
+  `src/azure/openai-client.ts` now detects o-series by deployment-name
+  prefix (`/^o\d/i.test(deployment)`) and:
+  - sends `max_completion_tokens: max(maxTokens, 4000)`,
+  - omits `temperature` for reasoning models, keeps it for chat models,
+  - widens 400 error logging to include the response body so the next
+    surprise from Azure is easier to diagnose.
+
+### Verified
+
+```bash
+curl http://localhost:8090/ai/inventory-summary -H "Authorization: Bearer <jwt>"
+# → 200, source: "azure", summary: real Slovenian narrative from o4-mini
+```
+
+The templated fallback still works when Azure 4xx-s or the env is blank —
+the UI flips the badge from "Vir: Azure AI" to "Vir: lokalna analiza".
+
+---
+
 ## 2026-05-17 — Initial release (closes Gap 6)
 
 New microservice that aggregates inventory + warehouse + product data and

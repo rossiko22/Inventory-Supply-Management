@@ -12,10 +12,13 @@ export const config = {
 
   // Azure OpenAI configuration — leave blank to get templated summaries only.
   azure: {
-    endpoint:    process.env['AZURE_OPENAI_ENDPOINT']    ?? '', // e.g. https://my-aoai.openai.azure.com
-    apiKey:      process.env['AZURE_OPENAI_API_KEY']     ?? '',
-    deployment:  process.env['AZURE_OPENAI_DEPLOYMENT']  ?? '', // your model deployment name, e.g. gpt-4o
-    apiVersion:  process.env['AZURE_OPENAI_API_VERSION'] ?? '2024-08-01-preview',
+    // `||` instead of `??` so an empty-string env (compose's `${VAR:-}`
+    // default expansion) falls back to the inline default. With `??` the
+    // empty string wins and Azure stays "not configured".
+    endpoint:    process.env['AZURE_OPENAI_ENDPOINT']    || '',
+    apiKey:      process.env['AZURE_OPENAI_API_KEY']     || '',
+    deployment:  process.env['AZURE_OPENAI_DEPLOYMENT']  || '',
+    apiVersion:  process.env['AZURE_OPENAI_API_VERSION'] || '',
     maxTokens:   parseInt(process.env['AZURE_OPENAI_MAX_TOKENS'] ?? '600', 10),
     temperature: parseFloat(process.env['AZURE_OPENAI_TEMPERATURE'] ?? '0.4'),
   },

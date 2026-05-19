@@ -9,6 +9,12 @@ import { createReorderRouter }          from './routes/reorder-suggestion';
 
 const app = express();
 
+// ai-service sits behind the mobile-gateway, which forwards the client IP
+// via X-Forwarded-For. Tell Express to trust exactly one hop so
+// express-rate-limit keys off the real client IP instead of refusing to
+// run (ERR_ERL_UNEXPECTED_X_FORWARDED_FOR).
+app.set('trust proxy', 1);
+
 app.use(cors({
   origin: config.cors.origins.includes('*') ? '*' : config.cors.origins,
   credentials: false,

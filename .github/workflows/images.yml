@@ -1,0 +1,121 @@
+# Build + push every container image to Docker Hub on every push to main.
+# Each component is built in parallel via the matrix below. Buildx is used
+# so the images target linux/amd64 (OpenShift Sandbox runs x86_64).
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   DOCKERHUB_USERNAME   your Docker Hub user (also used as the image namespace)
+#   DOCKERHUB_TOKEN      access token from https://hub.docker.com/settings/security
+#
+# Tagging strategy:
+#   :latest                   — always overwritten with the newest main build
+#   :<short-sha>              — immutable per commit (use this in OpenShift)
+#   :<branch>                 — handy for short-lived feature branches
+#
+# Build-on-PR is intentionally disabled (no `pull_request:` trigger): builds
+# are heavy and we don't want to publish PR artifacts. To verify a PR builds
+# locally: `./push-all.sh` (see naloga8-guidelines.md §3).
+name: build-images
+
+on:
+  push:
+    branches: [main]
+    # Only re-build when source actually changes — saves a lot of minutes.
+    paths:
+      - 'services/**'
+      - 'mobile-gateway/**'
+      - 'gateway-service/**'
+      - 'micro-frontends/**'
+      - '.github/workflows/images.yml'
+  workflow_dispatch:   # let you trigger manually from the Actions tab
+
+# Cancel in-flight runs for the same ref — newer commit wins.
+concurrency:
+  group: build-images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false   # one bad image shouldn't block the others
+      matrix:
+        include:
+          # ── Backend microservices ────────────────────────────────────────
+          - { name: auth-service,         context: services/auth-service }
+          - { name: company-service,      context: services/company-service }
+          - { name: fleet-service,        context: services/fleet-service }
+          - { name: warehouse-service,    context: services/warehouse-service }
+          - { name: product-service,      context: services/product-service }
+          - { name: inventory-service,    context: services/inventory-service }
+          - { name: order-service,        context: services/order-service }
+          - { name: notification-service, context: services/notification-service }
+          - { name: ai-service,           context: services/ai-service }
+          # ── Gateways ─────────────────────────────────────────────────────
+          - { name: mobile-gateway,       context: mobile-gateway }
+          - { name: web-gateway,          context: gateway-service }
+          # ── Micro-frontends ──────────────────────────────────────────────
+          - { name: shell,                context: micro-frontends/shell }
+          - { name: auth-mf,              context: micro-frontends/auth-mf }
+          - { name: companies-mf,         context: micro-frontends/companies-mf }
+          - { name: fleet-mf,             context: micro-frontends/fleet-mf }
+          - { name: inventory-mf,         context: micro-frontends/inventory-mf }
+          - { name: orders-mf,            context: micro-frontends/orders-mf }
+          - { name: products-mf,          context: micro-frontends/products-mf }
+          - { name: warehouses-mf,        context: micro-frontends/warehouses-mf }
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Compute short SHA
+        id: sha
+        run: echo "sha=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Sanitize branch name (used as tag)
+        id: branch
+        run: echo "tag=$(echo '${{ github.ref_name }}' | tr '/' '-' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Build + push ${{ matrix.name }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          platforms: linux/amd64
+          push: true
+          # Caching shaves a lot off rebuild time when only one service changed.
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to:   type=gha,mode=max,scope=${{ matrix.name }}
+          tags: |
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.name }}:latest
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.name }}:${{ steps.sha.outputs.sha }}
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.name }}:${{ steps.branch.outputs.tag }}
+
+  # Optional summary so the Actions UI shows what's deployable.
+  summary:
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Print image manifest
+        run: |
+          {
+            echo "## Pushed images"
+            echo ""
+            echo "Tag: \`latest\`, \`${GITHUB_SHA::7}\`, \`${GITHUB_REF_NAME//\//-}\`"
+            echo ""
+            echo "| Component | Image |"
+            echo "|---|---|"
+            for n in auth-service company-service fleet-service warehouse-service product-service inventory-service order-service notification-service ai-service mobile-gateway web-gateway shell auth-mf companies-mf fleet-mf inventory-mf orders-mf products-mf warehouses-mf; do
+              echo "| $n | \`docker.io/${{ secrets.DOCKERHUB_USERNAME }}/$n:${GITHUB_SHA::7}\` |"
+            done
+          } >> $GITHUB_STEP_SUMMARY
