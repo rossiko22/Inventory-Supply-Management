@@ -36,7 +36,10 @@ export function createProductRouter(): Router {
   router.delete('/products/:id',    requireManager, proxy);
 
   router.get('/categories',         proxy);
+  router.get('/categories/:id',     proxy);
   router.post('/categories',        requireManager, proxy);
+  router.put('/categories/:id',     requireManager, proxy);
+  router.delete('/categories/:id',  requireManager, proxy);
 
   return router;
 }
