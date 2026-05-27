@@ -14,6 +14,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.addAllowedOrigin("http://localhost:4200");  // Angular dev server
+        config.addAllowedOrigin("http://localhost:3000");  // micro-frontend shell
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);  // required because you use withCredentials: true

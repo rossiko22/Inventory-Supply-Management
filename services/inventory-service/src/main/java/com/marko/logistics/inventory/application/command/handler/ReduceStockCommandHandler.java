@@ -3,6 +3,7 @@ package com.marko.logistics.inventory.application.command.handler;
 import com.marko.logistics.inventory.application.command.ReduceStockCommand;
 import com.marko.logistics.inventory.application.port.out.InventoryRepositoryPort;
 import com.marko.logistics.inventory.domain.exception.InventoryNotFoundException;
+import com.marko.logistics.inventory.infrastructure.messaging.InventoryKafkaProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class ReduceStockCommandHandler {
 
     private final InventoryRepositoryPort inventoryRepository;
+    private final InventoryKafkaProducer kafkaProducer;
 
     public void handle(ReduceStockCommand command) {
         log.info("ReduceStockCommand: productId={}, warehouseId={}, quantity={}",
@@ -29,5 +31,12 @@ public class ReduceStockCommandHandler {
 
         log.info("Stock reduced: productId={}, warehouseId={}, newQuantity={}",
                 command.productId(), command.warehouseId(), inventory.getQuantity());
+
+        if (inventory.getQuantity() == 0) {
+            kafkaProducer.sendInventoryOutEvent(inventory.getWarehouseId(), inventory.getProductId());
+        } else if (inventory.isLowStock()) {
+            kafkaProducer.sendInventoryLowEvent(
+                    inventory.getWarehouseId(), inventory.getProductId(), inventory.getQuantity());
+        }
     }
 }

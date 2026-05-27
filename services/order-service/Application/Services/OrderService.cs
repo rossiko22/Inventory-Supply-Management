@@ -47,9 +47,12 @@ public class OrderService : IOrderService
 
         _logger.LogInformation("Order {OrderId} status updated to {Status}", orderId, status);
 
-        if (status == Status.Closed)
+        // Capacity is reserved on approval (not on close): once a manager
+        // approves an order, the warehouse must immediately reflect the
+        // committed quantity — even if it pushes usedCapacity over total.
+        if (status == Status.Approved)
         {
-            _logger.LogInformation("Order {OrderId} closed — sending inventory update via gRPC: productId={ProductId}, warehouseId={WarehouseId}, quantity={Quantity}",
+            _logger.LogInformation("Order {OrderId} approved — sending inventory update via gRPC: productId={ProductId}, warehouseId={WarehouseId}, quantity={Quantity}",
                 orderId, order.ProductId, order.WarehouseId, order.Quantity);
 
             await _inventoryClient.SendInventoryAsync(order.ProductId, order.WarehouseId, order.Quantity);

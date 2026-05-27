@@ -25,23 +25,33 @@ function mapEventToNotification(event: KafkaEvent): Notification {
         resourceId: event.payload.orderId,
       });
 
-    case 'inventory.low':
+    case 'inventory.low': {
+      const { warehouseId, productId, capacityLeft } = event.payload;
+      const message = productId
+        ? `Product ${productId} in warehouse ${warehouseId} is running low — ${capacityLeft} units left.`
+        : `Warehouse ${warehouseId} is running low — ${capacityLeft} units left.`;
       return createNotification({
         category:   'INVENTORY',
         severity:   'warning',
         title:      'Low stock alert',
-        message:    `${event.payload.warehouseId} is running low — ${event.payload.capacityLeft} units left.`,
-        resourceId: event.payload.warehouseId,
+        message,
+        resourceId: productId ?? warehouseId,
       });
+    }
 
-    case 'inventory.out':
+    case 'inventory.out': {
+      const { warehouseId, productId } = event.payload;
+      const message = productId
+        ? `Product ${productId} in warehouse ${warehouseId} is out of stock.`
+        : `Warehouse ${warehouseId} capacity is full.`;
       return createNotification({
         category:   'INVENTORY',
         severity:   'error',
         title:      'Out of stock',
-        message:    `${event.payload.warehouseId} capacity is full.`,
-        resourceId: event.payload.warehouseId,
+        message,
+        resourceId: productId ?? warehouseId,
       });
+    }
     default:
       throw new Error("Unhandled topic");
   }

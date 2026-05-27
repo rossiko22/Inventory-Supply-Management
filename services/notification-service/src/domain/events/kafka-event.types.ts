@@ -17,10 +17,12 @@ export interface OrderStatusChangedPayload {
 export interface InventoryLowPayload {
   warehouseId:  string;
   capacityLeft: number;
+  productId?:   string;  // present when emitted by inventory-service (per-product), absent for warehouse capacity events
 }
 
 export interface InventoryOutPayload {
   warehouseId: string;
+  productId?:  string;
 }
 
 

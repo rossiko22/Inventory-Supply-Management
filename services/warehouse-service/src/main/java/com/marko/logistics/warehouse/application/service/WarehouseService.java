@@ -7,7 +7,6 @@ import com.marko.logistics.warehouse.application.dto.WarehouseResponse;
 import com.marko.logistics.warehouse.application.mapper.WarehouseMapper;
 import com.marko.logistics.warehouse.application.port.in.*;
 import com.marko.logistics.warehouse.application.port.out.WarehouseRepositoryPort;
-import com.marko.logistics.warehouse.domain.exception.WarehouseFullException;
 import com.marko.logistics.warehouse.domain.exception.WarehouseNotFoundException;
 import com.marko.logistics.warehouse.domain.model.Warehouse;
 import com.marko.logistics.warehouse.infrastructure.messaging.InventoryKafkaProducer;
@@ -47,10 +46,12 @@ public class WarehouseService implements
 
         int newUsed = warehouse.getUsedCapacity() + quantity;
 
-        if(newUsed > warehouse.getTotalCapacity()){
-            log.warn("Capacity overflow for warehouseId={}: used={}, total={}",
+        // Overflow is allowed: an approved order commits its quantity even when
+        // it exceeds the warehouse's total capacity (e.g. total=1000, used=1200).
+        // We record the overflow and still emit the "full" event below.
+        if (newUsed > warehouse.getTotalCapacity()) {
+            log.warn("Capacity overflow accepted for warehouseId={}: used={}, total={}",
                     warehouseId, newUsed, warehouse.getTotalCapacity());
-            throw new WarehouseFullException(warehouseId, warehouse.getTotalCapacity(), newUsed);
         }
 
         warehouse.update(
@@ -66,8 +67,8 @@ public class WarehouseService implements
 
         int capacityLeft = warehouse.getTotalCapacity() - newUsed;
 
-        if (capacityLeft == 0) {
-            log.info("Warehouse {} is completely full — sending inventory.out", warehouseId);
+        if (capacityLeft <= 0) {
+            log.info("Warehouse {} is full or over capacity ({} left) — sending inventory.out", warehouseId, capacityLeft);
             _kafkaProducer.sendOutInventoryEvent(warehouseId.toString());
         } else if (capacityLeft <= 500) {
             log.info("Warehouse {} is low ({} left) — sending inventory.low", warehouseId, capacityLeft);
@@ -107,8 +108,17 @@ public class WarehouseService implements
                     return new WarehouseNotFoundException(id);
                 });
 
-        warehouse.update(request.name(), request.country(), request.city(), request.totalCapacity(), request.usedCapacity());
-        var updated = repository.save(warehouse);
+        // Null fields in the request mean "leave unchanged" — usedCapacity is
+        // managed by capacity-update flows, not by the edit form, so it must
+        // never be wiped to null (DB column is NOT NULL).
+        warehouse.update(
+                request.name()          != null ? request.name()          : warehouse.getName(),
+                request.country()       != null ? request.country()       : warehouse.getCountry(),
+                request.city()          != null ? request.city()          : warehouse.getCity(),
+                request.totalCapacity() != null ? request.totalCapacity() : warehouse.getTotalCapacity(),
+                request.usedCapacity()  != null ? request.usedCapacity()  : warehouse.getUsedCapacity()
+        );
+        repository.save(warehouse);
         log.info("Warehouse ID {} updated successfully", id);
 
         return WarehouseMapper.toResponse(warehouse);

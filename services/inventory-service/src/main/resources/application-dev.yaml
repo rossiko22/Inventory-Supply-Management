@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5437/inventory
     username: administrator
-    password: D31#12Sdea@#123SdZZsdup@3!
+    password: administrator123
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,8 +19,15 @@ spring:
       enabled: true
     livereload:
       enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
 server:
   port: 8086
 grpc:
   server:
     port: 9090
+inventory:
+  documents:
+    base-path: ${INVENTORY_DOCS_PATH:./Documents/consumptions}

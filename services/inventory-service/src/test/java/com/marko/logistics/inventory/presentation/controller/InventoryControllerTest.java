@@ -3,12 +3,14 @@ package com.marko.logistics.inventory.presentation.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marko.logistics.inventory.application.command.AddStockCommand;
 import com.marko.logistics.inventory.application.command.handler.AddStockCommandHandler;
+import com.marko.logistics.inventory.application.command.handler.UpdateThresholdsCommandHandler;
 import com.marko.logistics.inventory.application.dto.CreateInventoryRequest;
 import com.marko.logistics.inventory.application.dto.InventoryResponse;
 import com.marko.logistics.inventory.application.query.GetAllInventoryQuery;
 import com.marko.logistics.inventory.application.query.GetInventoryByWarehouseQuery;
 import com.marko.logistics.inventory.application.query.handler.GetAllInventoryQueryHandler;
 import com.marko.logistics.inventory.application.query.handler.GetInventoryByWarehouseQueryHandler;
+import com.marko.logistics.inventory.application.service.ConsumptionService;
 import com.marko.logistics.inventory.infrastructure.security.RequestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,11 +39,17 @@ public class InventoryControllerTest {
         addStockHandler = mock(AddStockCommandHandler.class);
         getAllHandler = mock(GetAllInventoryQueryHandler.class);
         getByWarehouseHandler = mock(GetInventoryByWarehouseQueryHandler.class);
+        mapper = new ObjectMapper();
         mockMvc = MockMvcBuilders
                 .standaloneSetup(new InventoryController(
-                        addStockHandler, getAllHandler, getByWarehouseHandler, mock(RequestContext.class)))
+                        addStockHandler,
+                        mock(UpdateThresholdsCommandHandler.class),
+                        getAllHandler,
+                        getByWarehouseHandler,
+                        mock(ConsumptionService.class),
+                        mock(RequestContext.class),
+                        mapper))
                 .build();
-        mapper = new ObjectMapper();
     }
 
     @Test

@@ -27,10 +27,10 @@ export const config = {
     },
   },
   db: {
-    host:     'localhost',
-    port:     5439,
-    database: 'notifications',
-    user:     'administrator',
-    password: 'D31#12Sdea@#123SdZZsdup@3!',
+    host:     process.env['DB_HOST']     ?? 'localhost',
+    port:     parseInt(process.env['DB_PORT'] ?? '5439', 10),
+    database: process.env['DB_NAME']     ?? 'notifications',
+    user:     process.env['DB_USER']     ?? 'administrator',
+    password: process.env['DB_PASSWORD'] ?? 'administrator123',
   },
 } as const;

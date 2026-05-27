@@ -82,6 +82,13 @@ public class Program
 
         var app = builder.Build();
 
+        // Apply EF Core migrations on startup so the schema exists in a fresh
+        // database (e.g. the consolidated Postgres on OpenShift).
+        using (var scope = app.Services.CreateScope())
+        {
+            scope.ServiceProvider.GetRequiredService<FleetDbContext>().Database.Migrate();
+        }
+
         // Swagger UI in development
         if (app.Environment.IsDevelopment())
         {

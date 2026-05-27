@@ -4,6 +4,7 @@ import com.marko.logistics.inventory.application.command.ReduceStockCommand;
 import com.marko.logistics.inventory.application.port.out.InventoryRepositoryPort;
 import com.marko.logistics.inventory.domain.exception.InventoryNotFoundException;
 import com.marko.logistics.inventory.domain.model.Inventory;
+import com.marko.logistics.inventory.infrastructure.messaging.InventoryKafkaProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,12 +17,14 @@ import static org.mockito.Mockito.*;
 class ReduceStockCommandHandlerTest {
 
     private InventoryRepositoryPort repository;
+    private InventoryKafkaProducer kafkaProducer;
     private ReduceStockCommandHandler handler;
 
     @BeforeEach
     void setUp() {
         repository = mock(InventoryRepositoryPort.class);
-        handler = new ReduceStockCommandHandler(repository);
+        kafkaProducer = mock(InventoryKafkaProducer.class);
+        handler = new ReduceStockCommandHandler(repository, kafkaProducer);
     }
 
     @Test

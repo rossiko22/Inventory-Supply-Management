@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5435/warehouses
     username: administrator
-    password: D31#12Sdea@#123SdZZsdup@3!
+    password: administrator123
   jpa:
     hibernate:
       ddl-auto: update

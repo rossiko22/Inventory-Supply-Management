@@ -5,5 +5,6 @@ public enum Status
     Requested,
     Approved,
     Delivered,
-    Closed
+    Closed,
+    Rejected
 }

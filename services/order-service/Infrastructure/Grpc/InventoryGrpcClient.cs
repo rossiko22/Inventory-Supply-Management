@@ -15,6 +15,10 @@ public class InventoryGrpcClient : IInventoryGrpcClient
 {
     private readonly ResiliencePipeline _circuitBreaker;
     private readonly ILogger<InventoryGrpcClient> _logger;
+    // gRPC endpoint of inventory-service. Defaults to localhost for local dev;
+    // in Kubernetes/OpenShift set INVENTORY_GRPC_URL=http://inventory-service:9090.
+    private readonly string _inventoryUrl =
+        Environment.GetEnvironmentVariable("INVENTORY_GRPC_URL") ?? "http://localhost:9090";
 
     public InventoryGrpcClient(ResiliencePipeline circuitBreaker, ILogger<InventoryGrpcClient> logger)
     {
@@ -28,7 +32,7 @@ public class InventoryGrpcClient : IInventoryGrpcClient
         {
             await _circuitBreaker.ExecuteAsync(async ct =>
             {
-                using var channel = GrpcChannel.ForAddress("http://localhost:9090");
+                using var channel = GrpcChannel.ForAddress(_inventoryUrl);
                 var client  = new InventoryService.InventoryServiceClient(channel);
                 var request = new InventoryRequest
                 {
